@@ -144,7 +144,17 @@ package decoder;
                                                       | u_interrupts 
                                     `ifdef hypervisor | hs_interrupts `endif ;
 		// format pendingInterrupt value to return
-    Bool taketrap=unpack(|pending_interrupts) `ifdef debug ||  (step_done && !debug.debug_mode) `endif ;
+    Bool take_trap = False;
+    `ifdef debug
+      if (!debug.debug_mode && debug.step_set && !step_done && !debug.step_ie) begin
+        take_trap = False;
+      end
+      else begin
+        take_trap = unpack(|pending_interrupts) || (step_done && !debug.debug_mode);
+      end
+    `else // ~debug
+      take_trap=unpack(|pending_interrupts) ;
+    `endif
 
     Bit#(TSub#(`causesize, 1)) int_cause='1;
     Bit#(1) mode = 1;
@@ -195,7 +205,7 @@ package decoder;
   `endif
 
 
-		return tuple2({mode,int_cause}, taketrap);
+		return tuple2({mode,int_cause}, take_trap);
 	endfunction
 
 
