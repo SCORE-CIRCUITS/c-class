@@ -4,6 +4,10 @@ CHANGELOG
 
 This project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
+[5.7.0] - 2026-08-26
+--------------------
+- dcsr.stepi functionality fix
+
 [5.6.1] - 2026-07-01
 --------------------
 - soc_config upstream for removing python depencies
