@@ -108,58 +108,58 @@ module mkbranch(Ifc_branch);
 	Wire#(Gv_global_data) wr_bank3_out <- mkWire();
 	Wire#(Gv_global_data) wr_bank4_out <- mkWire();
 	//copy of incoming pc for update stages
-	Reg#(Gv_pc) rg_pc_copy <- mkReg(0);
+	Reg#(Gv_pc) rg_pc_copy <- mkRegA(0);
 	//to control flushing operation
-	Reg#(Bool) rg_flush <- mkReg(False);
+	Reg#(Bool) rg_flush <- mkRegA(False);
 	//holds the addresses of the memory locations while flushing; incremented from 0 till max address
 	//bimodal flush address is taken to be 13 bits instead of Gv_bimodal_addr because it reduces critical path delay during comparison in rl_flush
-	Reg#(Bit#(TAdd#(`BIMODAL_ADDR,1))) rg_bimodal_flush_addr <- mkReg(0);
-	Reg#(Gv_global_addr) rg_global_flush_addr <- mkReg(0);
+	Reg#(Bit#(TAdd#(`BIMODAL_ADDR,1))) rg_bimodal_flush_addr <- mkRegA(0);
+	Reg#(Gv_global_addr) rg_global_flush_addr <- mkRegA(0);
 	//to initialize the random number generators
-	Reg#(Bool) rg_init_rand <- mkReg(True);
+	Reg#(Bool) rg_init_rand <- mkRegA(True);
 
 	//global history
-	Reg#(Gv_hist) rg_real_global_history <- mkReg(0);
+	Reg#(Gv_hist) rg_real_global_history <- mkRegA(0);
 	//csrs for hash functions
-	Reg#(Gv_tag) rg_bank1_csr_p <- mkReg(0);
-	Reg#(Gv_tag) rg_bank2_csr_p <- mkReg(0);
-	Reg#(Gv_tag) rg_bank3_csr_p <- mkReg(0);
-	Reg#(Gv_tag) rg_bank4_csr_p <- mkReg(0);
+	Reg#(Gv_tag) rg_bank1_csr_p <- mkRegA(0);
+	Reg#(Gv_tag) rg_bank2_csr_p <- mkRegA(0);
+	Reg#(Gv_tag) rg_bank3_csr_p <- mkRegA(0);
+	Reg#(Gv_tag) rg_bank4_csr_p <- mkRegA(0);
 	//secondary csrs for tag calculation
-	Reg#(Gv_secondary_csr) rg_bank1_csr_s <- mkReg(0);
-	Reg#(Gv_secondary_csr) rg_bank2_csr_s <- mkReg(0);
-	Reg#(Gv_secondary_csr) rg_bank3_csr_s <- mkReg(0);
-	Reg#(Gv_secondary_csr) rg_bank4_csr_s <- mkReg(0);
+	Reg#(Gv_secondary_csr) rg_bank1_csr_s <- mkRegA(0);
+	Reg#(Gv_secondary_csr) rg_bank2_csr_s <- mkRegA(0);
+	Reg#(Gv_secondary_csr) rg_bank3_csr_s <- mkRegA(0);
+	Reg#(Gv_secondary_csr) rg_bank4_csr_s <- mkRegA(0);
 	//csrs for index calculation
-	Reg#(Gv_global_addr) rg_bank2_csr_indx <- mkReg(0);
-	Reg#(Gv_global_addr) rg_bank3_csr_indx <- mkReg(0);
-	Reg#(Gv_global_addr) rg_bank4_csr_indx <- mkReg(0);
+	Reg#(Gv_global_addr) rg_bank2_csr_indx <- mkRegA(0);
+	Reg#(Gv_global_addr) rg_bank3_csr_indx <- mkRegA(0);
+	Reg#(Gv_global_addr) rg_bank4_csr_indx <- mkRegA(0);
 
 
 	//primary csrs for tag calculation
-	Reg#(Gv_hist) rg_global_history <- mkReg(0);
-	Reg#(Bit#(TAdd#(`TAG_SIZE,`PIPELINE_DEPTH))) crg_bank1_csr_p[2] <- mkCReg(2,0);
-	Reg#(Bit#(TAdd#(`TAG_SIZE,`PIPELINE_DEPTH))) crg_bank2_csr_p[2] <- mkCReg(2,0);
-	Reg#(Bit#(TAdd#(`TAG_SIZE,`PIPELINE_DEPTH))) crg_bank3_csr_p[2] <- mkCReg(2,0);
-	Reg#(Bit#(TAdd#(`TAG_SIZE,`PIPELINE_DEPTH))) crg_bank4_csr_p[2] <- mkCReg(2,0);
+	Reg#(Gv_hist) rg_global_history <- mkRegA(0);
+	Reg#(Bit#(TAdd#(`TAG_SIZE,`PIPELINE_DEPTH))) crg_bank1_csr_p[2] <- mkCRegA(2,0);
+	Reg#(Bit#(TAdd#(`TAG_SIZE,`PIPELINE_DEPTH))) crg_bank2_csr_p[2] <- mkCRegA(2,0);
+	Reg#(Bit#(TAdd#(`TAG_SIZE,`PIPELINE_DEPTH))) crg_bank3_csr_p[2] <- mkCRegA(2,0);
+	Reg#(Bit#(TAdd#(`TAG_SIZE,`PIPELINE_DEPTH))) crg_bank4_csr_p[2] <- mkCRegA(2,0);
 	//secondary csrs for tag calculation
-	Reg#(Bit#(TAdd#(TSub#(`TAG_SIZE,1),`PIPELINE_DEPTH))) crg_bank1_csr_s[2] <- mkCReg(2,0);
-	Reg#(Bit#(TAdd#(TSub#(`TAG_SIZE,1),`PIPELINE_DEPTH))) crg_bank2_csr_s[2] <- mkCReg(2,0);
-	Reg#(Bit#(TAdd#(TSub#(`TAG_SIZE,1),`PIPELINE_DEPTH))) crg_bank3_csr_s[2] <- mkCReg(2,0);
-	Reg#(Bit#(TAdd#(TSub#(`TAG_SIZE,1),`PIPELINE_DEPTH))) crg_bank4_csr_s[2] <- mkCReg(2,0);
+	Reg#(Bit#(TAdd#(TSub#(`TAG_SIZE,1),`PIPELINE_DEPTH))) crg_bank1_csr_s[2] <- mkCRegA(2,0);
+	Reg#(Bit#(TAdd#(TSub#(`TAG_SIZE,1),`PIPELINE_DEPTH))) crg_bank2_csr_s[2] <- mkCRegA(2,0);
+	Reg#(Bit#(TAdd#(TSub#(`TAG_SIZE,1),`PIPELINE_DEPTH))) crg_bank3_csr_s[2] <- mkCRegA(2,0);
+	Reg#(Bit#(TAdd#(TSub#(`TAG_SIZE,1),`PIPELINE_DEPTH))) crg_bank4_csr_s[2] <- mkCRegA(2,0);
 	//csrs for index calculation
-	Reg#(Bit#(TAdd#(`GLOBAL_ADDR,`PIPELINE_DEPTH))) crg_bank2_csr_indx[2] <- mkCReg(2,0);
-	Reg#(Bit#(TAdd#(`GLOBAL_ADDR,`PIPELINE_DEPTH))) crg_bank3_csr_indx[2] <- mkCReg(2,0);
-	Reg#(Bit#(TAdd#(`GLOBAL_ADDR,`PIPELINE_DEPTH))) crg_bank4_csr_indx[2] <- mkCReg(2,0);
+	Reg#(Bit#(TAdd#(`GLOBAL_ADDR,`PIPELINE_DEPTH))) crg_bank2_csr_indx[2] <- mkCRegA(2,0);
+	Reg#(Bit#(TAdd#(`GLOBAL_ADDR,`PIPELINE_DEPTH))) crg_bank3_csr_indx[2] <- mkCRegA(2,0);
+	Reg#(Bit#(TAdd#(`GLOBAL_ADDR,`PIPELINE_DEPTH))) crg_bank4_csr_indx[2] <- mkCRegA(2,0);
 	//counts number of inflight branch instructions in pipeline
-	Reg#(Bit#(TLog#(`PIPELINE_DEPTH))) crg_inflight[2] <- mkCReg(2,0);
+	Reg#(Bit#(TLog#(`PIPELINE_DEPTH))) crg_inflight[2] <- mkCRegA(2,0);
 	//cregs for speculative training of history
-	Reg#(Bit#(TAdd#(`GLOBAL_ADDR,1))) crg_hist0[2] <- mkCReg(2,0);
-	Reg#(Bit#(TAdd#(`GLOBAL_ADDR,1))) crg_hist1[2] <- mkCReg(2,0);
+	Reg#(Bit#(TAdd#(`GLOBAL_ADDR,1))) crg_hist0[2] <- mkCRegA(2,0);
+	Reg#(Bit#(TAdd#(`GLOBAL_ADDR,1))) crg_hist1[2] <- mkCRegA(2,0);
 
-	Reg#(Bit#(TAdd#(`GLOBAL_ADDR,1))) crg_hist[2] <- mkCReg(2,0);
+	Reg#(Bit#(TAdd#(`GLOBAL_ADDR,1))) crg_hist[2] <- mkCRegA(2,0);
 	//to choose between the 2 cregs
-	Reg#(Bit#(1)) rg_choice <- mkReg(0);
+	Reg#(Bit#(1)) rg_choice <- mkRegA(0);
 	//to schedule mn_get() after train
 	Wire#(Bit#(1)) wr_shift_in <- mkWire;
 
@@ -180,10 +180,10 @@ module mkbranch(Ifc_branch);
 	//to control shifting wrt rl_shift_hist and ma_train
 	Wire#(Bool) wr_fubar <- mkDWire(False);
 
-	let dump1 <- mkReg(InvalidFile);
-	let dump2 <- mkReg(InvalidFile);
-	let dump3 <- mkReg(InvalidFile);
-	Reg#(Bool) file_open <- mkReg(True);
+	let dump1 <- mkRegA(InvalidFile);
+	let dump2 <- mkRegA(InvalidFile);
+	let dump3 <- mkRegA(InvalidFile);
+	Reg#(Bool) file_open <- mkRegA(True);
 
 	//rule to perform the complete prediction; computes hash outputs,performs comparisons and muxing(through if else tree)
 	//updates the counter value of matching bank as well as m,u bits of all banks and the bank no. of matching bank

@@ -112,12 +112,12 @@ package gshare_fa_1;
     /*doc : vec : This vector of register holds the BTB entries. We use vector instead of array
     to leverage the select function provided by bluespec*/
     Vector#(`btbdepth, Reg#(BTBEntry)) v_reg_btb_entry <-
-                                                  replicateM(mkReg(BTBEntry{target: ?, ci : Branch
+                                                  replicateM(mkRegA(BTBEntry{target: ?, ci : Branch
                                            `ifdef compressed ,instr16: False, hi:False `endif }));
 
     /*doc : vec : This vector holds the BTB tags and the respecitve valid bits. This has been split
     from the BTB entries for better hw of CAM look-ups and index retrieval */
-    Vector#(`btbdepth, Reg#(BTBTag)) v_reg_btb_tag <- replicateM(mkReg(unpack(0)));
+    Vector#(`btbdepth, Reg#(BTBTag)) v_reg_btb_tag <- replicateM(mkRegA(unpack(0)));
 
     /*doc : reg : This array holds the branch history table. The bht table banked into `bhtcols
     banks. In case of compressed `bhtcols is 2 else 1. By banking it becomes easy to access the bht
@@ -127,13 +127,13 @@ package gshare_fa_1;
     /*Reg#(Bit#(`statesize)) rg_bht_arr[`bhtcols][`bhtdepth/`bhtcols];
     for(Integer i = 0; i < `bhtcols; i =  i + 1)
       for(Integer j = 0; j < `bhtdepth/`bhtcols ; j =  j + 1)
-        rg_bht_arr[i][j] <- mkReg(1);*/
+        rg_bht_arr[i][j] <- mkRegA(1);*/
   
-    Vector#(`statesize, Reg#(Bit#(`bhtdepth))) rg_bht_arr <- replicateM(mkReg(0));
+    Vector#(`statesize, Reg#(Bit#(`bhtdepth))) rg_bht_arr <- replicateM(mkRegA(0));
 
     /*doc : reg : This register points to the next entry in the Fully associative BTB that should
     be allocated for a new entry */
-    Reg#(Bit#(TLog#(`btbdepth))) rg_allocate <- mkReg(0);
+    Reg#(Bit#(TLog#(`btbdepth))) rg_allocate <- mkRegA(0);
 
     /*doc : reg : This register holds the global history buffer. There are two methods which can
     update this register: mav_prediction_response and ma_mispredict. The former is called every
@@ -148,14 +148,14 @@ package gshare_fa_1;
     Alternate to that is to implement this register as a CReg where the ma_mispredict value shadows
     the value updated by the mav_prediction_response method. This remove the above critical path.
     */
-    Reg#(Bit#(`histlen)) rg_ghr[2] <- mkCReg(2, 0);
+    Reg#(Bit#(`histlen)) rg_ghr[2] <- mkCRegA(2, 0);
 
     /*doc : wire : This wire indicates if the predictor is enabled or disabled by the csr config*/
     Wire#(Bool) wr_bpu_enable <- mkWire();
 
   `ifdef ifence
     /*doc : reg : When true this register flushes all the entries and cleans up the btb*/
-    ConfigReg#(Bool) rg_initialize <- mkConfigReg(False);
+    ConfigReg#(Bool) rg_initialize <- mkConfigRegA(False);
 
     /*doc : rule : This rule flushes the btb and puts it back to the initial reset state.
     This rule would be called each time a fence.i is being performed. This rule will also reset the

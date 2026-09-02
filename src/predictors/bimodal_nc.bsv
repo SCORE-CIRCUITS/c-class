@@ -97,15 +97,15 @@ package bimodal_nc;
     Ifc_stack#(`vaddr, `rasdepth) ras_stack <- mkstack;
 
     // boolean register and counter used to initialize the ram structure on reset.
-    Reg#(Bool) rg_init <- mkReg(True);
-    Reg#(Bit#(TLog#(`btbdepth))) rg_init_count <- mkReg(0);
+    Reg#(Bool) rg_init <- mkRegA(True);
+    Reg#(Bit#(TLog#(`btbdepth))) rg_init_count <- mkRegA(0);
     
     // wire indicating if the bpu is enabled/disabled
     Wire#(Bool) wr_bpu_enable <- mkWire();
 
     FIFOF#(PredictionRequest)  ff_pred_request      <- mkSizedFIFOF(2);
     FIFOF#(NextPC) ff_next_pc   <- mkBypassFIFOF();
-    Reg#(PredictionToStage0)   rg_prediction_pc[2]  <- mkCReg(2, PredictionToStage0{prediction : 0,
+    Reg#(PredictionToStage0)   rg_prediction_pc[2]  <- mkCRegA(2, PredictionToStage0{prediction : 0,
                             target_pc : ?,  epochs: 0});
     
     // RuleName : initialize

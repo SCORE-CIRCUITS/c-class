@@ -57,17 +57,17 @@ module mkbpu(Ifc_bpu);
 	Ifc_branch tage_predictor <- mkbranch;
 	Ifc_btb btb <- mkbtb;
 
-	let dump <- mkReg(InvalidFile);
-	let dump2 <- mkReg(InvalidFile);
-	let dump3 <- mkReg(InvalidFile);
-	let dump4 <- mkReg(InvalidFile);
-	let dump5 <- mkReg(InvalidFile);
-	//let dump_taken <- mkReg(InvalidFile);
-	//let dump_imm <- mkReg(InvalidFile);
-	Reg#(Bool) file_open <- mkReg(True);
-	Reg#(Bit#(32)) rg_count_mispred <- mkReg(0);
-	Reg#(Bit#(32)) rg_count_miss <- mkReg(0);
-	Reg#(Bit#(32)) rg_count_hit <-  mkReg(0);
+	let dump <- mkRegA(InvalidFile);
+	let dump2 <- mkRegA(InvalidFile);
+	let dump3 <- mkRegA(InvalidFile);
+	let dump4 <- mkRegA(InvalidFile);
+	let dump5 <- mkRegA(InvalidFile);
+	//let dump_taken <- mkRegA(InvalidFile);
+	//let dump_imm <- mkRegA(InvalidFile);
+	Reg#(Bool) file_open <- mkRegA(True);
+	Reg#(Bit#(32)) rg_count_mispred <- mkRegA(0);
+	Reg#(Bit#(32)) rg_count_miss <- mkRegA(0);
+	Reg#(Bit#(32)) rg_count_hit <-  mkRegA(0);
 
 	//Reg#(Tuple2#(Bit#(3),Bit#(`VADDR))) rg_req_copy <- mkRegU;
 	FIFOF#(Tuple2#(Bit#(3),Bit#(`VADDR))) capture_prediction_request <-mkLFIFOF();

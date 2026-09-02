@@ -68,7 +68,7 @@ module mkbtb(Ifc_btb);
 	//Reg Vector for unconditional branches
 	Vector#(`VRG_DEPTH,Reg#(Gv_vrg_data)) vrg_uncond <- replicateM(mkRegU);		
 	//Counter for round robin replacement in vreg
-	Reg#(Bit#(TLog#(`VRG_DEPTH))) rg_rr_counter <- mkReg(0);
+	Reg#(Bit#(TLog#(`VRG_DEPTH))) rg_rr_counter <- mkRegA(0);
 
 	
 	//number of the way to be replaced
@@ -82,11 +82,11 @@ module mkbtb(Ifc_btb);
 	Wire#(Bool) wr_hit_vrg <- mkWire;
 
 	//local copy of pc for use in rules
-	Wire#(Gv_pc) rg_pc_copy <- mkReg(0);
+	Wire#(Gv_pc) rg_pc_copy <- mkRegA(0);
 	//control flushing operation
-	Wire#(Bool) rg_flush <- mkReg(False);
+	Wire#(Bool) rg_flush <- mkRegA(False);
 	//address while flushing
-	Wire#(Bit#(TAdd#(TLog#(`BTB_SIZE),1))) rg_flush_addr <- mkReg(0);
+	Wire#(Bit#(TAdd#(TLog#(`BTB_SIZE),1))) rg_flush_addr <- mkRegA(0);
 		
 	//reads outputs from brams;compares tag of each way with upper 22 pc bits and puts branch target pc onto wr_branch_pc if there is a hit in bram; if there is a hit in vrg, read from there
 	rule rl_compare;
