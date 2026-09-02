@@ -37,11 +37,11 @@ module mkcombo_mul(Ifc_combo_mul);
 
   String mul = "";
 
-  Vector#(`MULSTAGES_IN, Reg#(Bit#(TAdd#(1, `xlen))))  rg_op1  <- replicateM(mkReg(0));
-  Vector#(`MULSTAGES_IN, Reg#(Bit#(TAdd#(1, `xlen))))  rg_op2  <- replicateM(mkReg(0));
-  Vector#(`MULSTAGES_IN, Reg#(Bit#(3)))                rg_fn3  <- replicateM(mkReg(0));
+  Vector#(`MULSTAGES_IN, Reg#(Bit#(TAdd#(1, `xlen))))  rg_op1  <- replicateM(mkRegA(0));
+  Vector#(`MULSTAGES_IN, Reg#(Bit#(TAdd#(1, `xlen))))  rg_op2  <- replicateM(mkRegA(0));
+  Vector#(`MULSTAGES_IN, Reg#(Bit#(3)))                rg_fn3  <- replicateM(mkRegA(0));
 `ifdef RV64
-  Vector#(`MULSTAGES_IN, Reg#(Bool))                   rg_wordop  <- replicateM(mkReg(False));
+  Vector#(`MULSTAGES_IN, Reg#(Bool))                   rg_wordop  <- replicateM(mkRegA(False));
 `endif
 
   /*doc:wire: */
@@ -55,7 +55,7 @@ module mkcombo_mul(Ifc_combo_mul);
 
   Vector#(`MULSTAGES_IN, FIFOF#(Bool)) rg_valid_in <- replicateM(mkUGLFIFOF);
   Vector#(`MULSTAGES_OUT, FIFOF#(Bool)) rg_valid_out <- replicateM(mkUGLFIFOF);
-  Vector#(`MULSTAGES_OUT, Reg#(Bit#(`xlen)))           rg_output <- replicateM(mkReg(0));
+  Vector#(`MULSTAGES_OUT, Reg#(Bit#(`xlen)))           rg_output <- replicateM(mkRegA(0));
 
   /*doc:wire: */
   Wire#(Bit#(`xlen)) wr_output <- mkDWire(?);
