@@ -1,15 +1,15 @@
 caches_mmu:
   url: https://gitlab.com/shaktiproject/uncore/caches_mmu
-  checkout: 14.4.8
+  checkout: 48-pd-release
 common_bsv:
   url: https://gitlab.com/shaktiproject/common_bsv
-  checkout: 3.1.0
+  checkout: 20-pd-release
 devices:
   url: https://gitlab.com/shaktiproject/uncore/devices
-  checkout: 9.0.3
+  checkout: 143-pd-release
 fabrics:
   url: https://gitlab.com/shaktiproject/uncore/fabrics
-  checkout: 1.3.6
+  checkout: 23-pd-release 
 common_verilog:
   url: https://gitlab.com/shaktiproject/common_verilog
   checkout: 3.2.0
