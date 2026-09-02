@@ -25,7 +25,7 @@ module mkinteger_divider(Ifc_integer_divider#(fpman4))
     let fPMAN4 = valueOf(fpman4);
 
 	Reg#(Bit#(op_fpman)) rg_inter_stage <- mkRegU();
-	Reg#(Bit#(6)) rg_state <- mkReg(0);
+	Reg#(Bit#(6)) rg_state <- mkRegA(0);
 	Wire#((Bit#(op_fpman))) wr_final_out <- mkWire;
     Wire#(Bool) wr_flush <- mkDWire(False);
     function Bit#(op_fpman) fn_divide_step (Bit#(op_fpman) packed_div, Bit#(1) final_stage, Bit#(1) is_even)
@@ -134,8 +134,8 @@ endmodule
 
  module mkTb (Empty);
 
-    Reg#(Bit#(32)) rg_clock <-mkReg(0);
-    Reg#(Bit#(55)) rg_remainder <-mkReg(0);
+    Reg#(Bit#(32)) rg_clock <-mkRegA(0);
+    Reg#(Bit#(55)) rg_remainder <-mkRegA(0);
 //     Ifc_integer_divider#(27) instance_divider <-mkinteger_divider();
 
      Ifc_integer_divider#(27) instance_divider <-mkinteger_divider();
@@ -158,7 +158,7 @@ endmodule
 // (*synthesize*)
 // module mkTb (Empty);
 //
-//    Reg#(Bit#(32)) rg_clock <-mkReg(0);
+//    Reg#(Bit#(32)) rg_clock <-mkRegA(0);
 //
 //     Ifc_integer_divider#(27) instance_divider <-mkinteger_divider();
 //

@@ -324,8 +324,8 @@ module mkfpu_hardfloat(Ifc_fpu);
     Wire#(Bit#(ELEN)) wr_op1  <- mkDWire(0);
     Wire#(Bit#(ELEN)) wr_op2  <- mkDWire(0);
     Wire#(Bool) wr_issp       <- mkWire;
-    Reg#(Bool)  rg_issp       <- mkReg(False);
-    Reg#(Bool) rg_multicycle_op <-mkReg(False);
+    Reg#(Bool)  rg_issp       <- mkRegA(False);
+    Reg#(Bool) rg_multicycle_op <-mkRegA(False);
    
 `ifdef dpfpu
 	`ifdef RV64

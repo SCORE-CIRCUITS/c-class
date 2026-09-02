@@ -260,11 +260,11 @@ Wrapper3#(Tuple2#(Bit#(23), Bit#(8)),Tuple2#(Bit#(23), Bit#(8)), Tuple2#(Bit#(23
     Wrapper3#(Bit#(64),Bit#(64),Bit#(64),Tuple3#(Bit#(32),Bit#(32),Bit#(32)))                                                          setCanonicalNaN <- mkUniqueWrapper3(setCanNaN);
 
 
-	Reg#(Bit#(32)) rg_clock <-mkReg(0);
-    //Reg#(Bit#(64)) wr_operand1 <- mkReg(64'h3721795900000000);
-    //Reg#(Bit#(64)) wr_operand1 <- mkReg(64'h372741b800000000);
-      Reg#(Bit#(64)) wr_operand1 <- mkReg(64'hffffffff7f814000);
-    //Reg#(Bit#(64)) rg__operand1ut1 <- mkReg(64'h019000000000000);
+	Reg#(Bit#(32)) rg_clock <-mkRegA(0);
+    //Reg#(Bit#(64)) wr_operand1 <- mkRegA(64'h3721795900000000);
+    //Reg#(Bit#(64)) wr_operand1 <- mkRegA(64'h372741b800000000);
+      Reg#(Bit#(64)) wr_operand1 <- mkRegA(64'hffffffff7f814000);
+    //Reg#(Bit#(64)) rg__operand1ut1 <- mkRegA(64'h019000000000000);
 
 	Ifc_fpu_convert_dp_sp cvt <- mkfpu_convert_dp_sp;
 

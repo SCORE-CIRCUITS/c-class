@@ -22,8 +22,8 @@ package wrapper_ftof;
   module mkwrapper_ftof(Ifc_wrapper_ftof#(expWidthIn, sigWidthIn, expWidthOut, sigWidthOut));
     Ifc_ftof#(expWidthIn, sigWidthIn, expWidthOut, sigWidthOut) ftof <- mkftof;
     
-    Vector#(`ftof_stages, Reg#(Tuple2#(Bit#(TAdd#(expWidthOut, sigWidthOut)), Bit#(5))))  rg_output  <- replicateM(mkReg(unpack(0)));
-    Vector#(`ftof_stages, Reg#(Bool))  rg_valid  <- replicateM(mkDReg(False));
+    Vector#(`ftof_stages, Reg#(Tuple2#(Bit#(TAdd#(expWidthOut, sigWidthOut)), Bit#(5))))  rg_output  <- replicateM(mkRegA(unpack(0)));
+    Vector#(`ftof_stages, Reg#(Bool))  rg_valid  <- replicateM(mkDRegA(False));
    
 		if(`ftof_stages > 1) begin
     	rule rl_start;

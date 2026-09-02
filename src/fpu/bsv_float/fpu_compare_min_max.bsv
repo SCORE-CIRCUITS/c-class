@@ -190,9 +190,9 @@ module mkfpu_compare_min_max(Ifc_fpu_compare_min_max#(fpinp, fpman, fpexp))
 
 /*
    module mkTb(Empty);
-   Reg#(Bit#(32)) rg_operand1 <- mkReg(32'h00000000);
-   Reg#(Bit#(32)) rg_operand2 <- mkReg(32'h0c4e2044);
-   Reg#(Bit#(32)) rg_clock <- mkReg(0);
+   Reg#(Bit#(32)) rg_operand1 <- mkRegA(32'h00000000);
+   Reg#(Bit#(32)) rg_operand2 <- mkRegA(32'h0c4e2044);
+   Reg#(Bit#(32)) rg_clock <- mkRegA(0);
    Ifc_fpu_compare_min_max#(32,23,8) inst <- mkfpu_compare_min_max();
  
    rule rg_clock_cnt;

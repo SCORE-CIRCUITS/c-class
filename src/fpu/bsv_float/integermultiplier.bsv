@@ -20,8 +20,8 @@ package integermultiplier;
                 Add#(regwidth1,regwidth,regwidth_twice1)
               );
 
-    Reg#(Bit#(regwidth_twice1)) partial_prod <-mkReg(0); 
-    Reg#(Bit#(regwidth_log1)) rg_state_counter <-mkDReg(0);//Register for state machine counter
+    Reg#(Bit#(regwidth_twice1)) partial_prod <-mkRegA(0); 
+    Reg#(Bit#(regwidth_log1)) rg_state_counter <-mkDRegA(0);//Register for state machine counter
     let rEGWIDTH = valueOf(regwidth);
     let lOOP = valueOf(loop); 
     
@@ -55,8 +55,8 @@ package integermultiplier;
 
   module mkTb(Empty);
    Ifc_integermultiplier#(8,4) mul <- mkintegermultiplier();
-   Reg#(Bit#(8)) inp1 <- mkReg(8'b1100);
-   Reg#(Bit#(8)) inp2 <- mkReg(8'b1010);
+   Reg#(Bit#(8)) inp1 <- mkRegA(8'b1100);
+   Reg#(Bit#(8)) inp2 <- mkRegA(8'b1010);
 
    rule give_inputs;
    let x <- mul._start(inp1,inp2);

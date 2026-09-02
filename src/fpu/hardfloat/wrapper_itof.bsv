@@ -22,8 +22,8 @@ package wrapper_itof;
   module mkwrapper_itof(Ifc_wrapper_itof#(expWidth, sigWidth, intWidth));
     Ifc_itof#(expWidth, sigWidth, intWidth) itof <- mkitof;
     
-    Vector#(`itof_stages, Reg#(Tuple2#(Bit#(TAdd#(expWidth, sigWidth)), Bit#(5))))  rg_inputs  <- replicateM(mkReg(unpack(0)));
-    Vector#(`itof_stages, Reg#(Bool))  rg_valid  <- replicateM(mkDReg(False));
+    Vector#(`itof_stages, Reg#(Tuple2#(Bit#(TAdd#(expWidth, sigWidth)), Bit#(5))))  rg_inputs  <- replicateM(mkRegA(unpack(0)));
+    Vector#(`itof_stages, Reg#(Bool))  rg_valid  <- replicateM(mkDRegA(False));
     
     rule rl_start;
       for(Integer i = 1; i <=  `itof_stages-1 ; i = i+ 1) begin

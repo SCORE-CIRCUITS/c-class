@@ -7,7 +7,7 @@ import fpu::*;
 module mktb_fpu1();
 	
 	Ifc_fpu fpu <- mk_fpu();	
-	Reg#(int) cycle <- mkReg(0);
+	Reg#(int) cycle <- mkRegA(0);
 	
 	rule count;
 		cycle<=cycle+1;
@@ -59,11 +59,11 @@ endmodule
 //module mktb_fpu(); //bulk mode test
 //
 //	Ifc_fpu fpu <- mk_fpu();
-//	Reg#(int) count <- mkReg(0);
-//	Reg#(Bit#(16)) index <- mkReg(0);
-//	Reg#(Bit#(16)) out_index <- mkReg(0);
+//	Reg#(int) count <- mkRegA(0);
+//	Reg#(Bit#(16)) index <- mkRegA(0);
+//	Reg#(Bit#(16)) out_index <- mkRegA(0);
 //	RegFile#(Bit#(16),Bit#(96))  input_data <- mkRegFileFullLoad("random-tests/random_hex");
-//	let write_file <- mkReg(InvalidFile);
+//	let write_file <- mkRegA(InvalidFile);
 //	
 //	rule open_file(count==0);
 //		

@@ -22,8 +22,8 @@ package wrapper_fma;
   module mkwrapper_fma(Ifc_wrapper_fma#(expWidth, sigWidth));
     Ifc_mulAdd#(expWidth, sigWidth) fma <- mkmulAdd;
     
-    Vector#(`fma_stages, Reg#(Tuple2#(Bit#(TAdd#(expWidth, sigWidth)), Bit#(5))))  rg_inputs  <- replicateM(mkReg(unpack(0)));
-    Vector#(`fma_stages, Reg#(Bool))  rg_valid  <- replicateM(mkDReg(False));
+    Vector#(`fma_stages, Reg#(Tuple2#(Bit#(TAdd#(expWidth, sigWidth)), Bit#(5))))  rg_inputs  <- replicateM(mkRegA(unpack(0)));
+    Vector#(`fma_stages, Reg#(Bool))  rg_valid  <- replicateM(mkDRegA(False));
     
     rule rl_start;
       for(Integer i = 1; i <=  `fma_stages-1 ; i = i+ 1) begin
