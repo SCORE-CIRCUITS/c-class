@@ -4,6 +4,10 @@ CHANGELOG
 
 This project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
+[6.0.0] - 2026-09-02
+--------------------
+- RegA update
+
 [5.7.0] - 2026-08-26
 --------------------
 - dcsr.stepi functionality fix
