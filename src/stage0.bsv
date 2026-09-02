@@ -92,33 +92,33 @@ package stage0;
     TX#(Stage0PC#(`vaddr)) tx_tostage1 <- mkTX;
 
     /*doc:reg: holds the program counter*/
-    Reg#(Bit#(`vaddr)) rg_pc[2] <- mkCReg(2, 'h1000);
+    Reg#(Bit#(`vaddr)) rg_pc[2] <- mkCRegA(2, 'h1000);
 
     /*doc:reg: register to maintain the epoch in sync with execute stage*/
-    Reg#(Bit#(1)) rg_eEpoch <- mkReg(0);
+    Reg#(Bit#(1)) rg_eEpoch <- mkRegA(0);
 
     /*doc:reg: register to maintain the epoch in sync with execute stage*/
-    Reg#(Bit#(1)) rg_wEpoch <- mkReg(0);
+    Reg#(Bit#(1)) rg_wEpoch <- mkRegA(0);
 
     /*doc:reg: This register is used in the initializing the pc with reset-pc being driven by SoC.*/
-    Reg#(Bool) rg_initialize <- mkReg(True);
+    Reg#(Bool) rg_initialize <- mkRegA(True);
 
     /*doc:wire: captures the condition when the reset sequence is done*/
     Wire#(Bool) wr_reset_sequence_done <- mkWire();
 
   `ifdef ifence
     /*doc:reg: When true indicates that the flush occurred due to a fence*/
-    Reg#(Bool) rg_fence[2] <- mkCReg(2, False);
+    Reg#(Bool) rg_fence[2] <- mkCRegA(2, False);
   `endif
 
   `ifdef supervisor
     /*doc:reg: When true indicates that the flush occurred due to a sfence*/
-    Reg#(Bool) rg_sfence[2] <- mkCReg(2, False);
+    Reg#(Bool) rg_sfence[2] <- mkCRegA(2, False);
   `endif
 
   `ifdef hypervisor
     /*doc:reg: When true indicates that the flush occurred due to a hfence*/
-    Reg#(Bool) rg_hfence[2] <- mkCReg(2, False);
+    Reg#(Bool) rg_hfence[2] <- mkCRegA(2, False);
   `endif
 
   /*doc:wire: wire to hold the current privilege mode*/
@@ -129,7 +129,7 @@ package stage0;
     /*doc:reg: This register when Valid indicates a 32-bit control instruction on a
     2-byte boundary is predicted taken. Thus the cache is send the redirect after the upper-16 bits
     of the instruction have been fetched.*/
-    Reg#(Maybe#(Bit#(`vaddr))) rg_delayed_redirect[2] <- mkCReg(2, tagged Invalid);
+    Reg#(Maybe#(Bit#(`vaddr))) rg_delayed_redirect[2] <- mkCRegA(2, tagged Invalid);
   `endif
 `endif
 

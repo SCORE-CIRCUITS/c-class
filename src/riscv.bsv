@@ -137,19 +137,19 @@ module mkriscv#(Bit#(`vaddr) resetpc, parameter Bit#(`xlen) hartid `ifdef testmo
     Ifc_stage5  stage5 <- mkstage5(hartid);
     
     /*doc:reg: This register stays high once the hart has been reset */
-    Reg#(Bit#(1)) rg_reset_done <- mkReg(0);
+    Reg#(Bit#(1)) rg_reset_done <- mkRegA(0);
     /*doc:reg: This register sends a single cycle pulse one the hart is out of reset*/
-    Reg#(Bit#(1)) rg_reset_event <- mkDReg(0);
+    Reg#(Bit#(1)) rg_reset_event <- mkDRegA(0);
     /*doc:reg: This register is used to set the above registers after certain amount of clock cycles
      * have passed since the deassertion of the reset*/
-    Reg#(Bit#(TAdd#(1,TLog#(`reset_cycles)))) rg_reset_cycle <- mkReg(0);
+    Reg#(Bit#(TAdd#(1,TLog#(`reset_cycles)))) rg_reset_cycle <- mkRegA(0);
 
     let wbflush = stage5.common.mv_flush;
     let {exeflush, exepc} = stage3.common.mv_flush;
 
 `ifdef perfmonitors
     /*doc:wire: */
-    Reg#(Bit#(TSub#(`mhpm_eventcount,1))) wr_total_count <- mkReg(0);
+    Reg#(Bit#(TSub#(`mhpm_eventcount,1))) wr_total_count <- mkRegA(0);
   `ifdef icache
     Wire#(Bit#(5)) wr_icache_counters <- mkDWire(0);
   `endif

@@ -225,12 +225,12 @@ module mkstage3#(parameter Bit#(`xlen) hartid) (Ifc_stage3);
   Wire#(Maybe#(Bit#(`vaddr))) wr_next_pc <- mkDWire(tagged Invalid);
 
   /*doc:reg: Register to send the training for the BTB on conditional branches.*/
-  Reg#(Maybe#(Training_data)) wr_training_data <- mkDReg(tagged Invalid);
+  Reg#(Maybe#(Training_data)) wr_training_data <- mkDRegA(tagged Invalid);
   // Wire to send the return - address on the stack.
 `ifdef gshare
   // on a misprediction, this register contains the reset global history value and whethr the btb
   // was a hit or miss during prediction.
-  Reg#(Maybe#(Tuple2#(Bool, Bit#(`histlen)))) wr_mispredict_ghr <- mkDReg( tagged Invalid);
+  Reg#(Maybe#(Tuple2#(Bool, Bit#(`histlen)))) wr_mispredict_ghr <- mkDRegA( tagged Invalid);
 `endif
 `endif
 
@@ -277,8 +277,8 @@ module mkstage3#(parameter Bit#(`xlen) hartid) (Ifc_stage3);
 `endif
   // The following registers are use to the maintain epochs from various pipeline stages:
   // writeback and execute stage.
-	Reg#(Bit#(1)) rg_eEpoch <- mkConfigReg(0);
-	Reg#(Bit#(1)) rg_wEpoch <- mkReg(0);
+	Reg#(Bit#(1)) rg_eEpoch <- mkConfigRegA(0);
+	Reg#(Bit#(1)) rg_wEpoch <- mkRegA(0);
 
   // Wire sending redirection indication to the previous stages.
   Reg#(Bool) wr_flush_from_exe <- mkDWire(False);

@@ -41,16 +41,16 @@ package registerfile;
     String regfile ="";
 `ifdef merged_rf
     RegFile#(Bit#(6), Bit#(`elen)) rf <- mkRegFileWCF(0,63);
-		Reg#(Bit#(6)) rg_index <- mkReg(0);
+		Reg#(Bit#(6)) rg_index <- mkRegA(0);
 `else
     RegFile#(Bit#(5), Bit#(`xlen)) xrf <- mkRegFileWCF(0, 31);
-		Reg#(Bit#(5)) rg_index <- mkReg(0);
+		Reg#(Bit#(5)) rg_index <- mkRegA(0);
   `ifdef spfpu
     RegFile#(Bit#(5), Bit#(`flen)) frf <- mkRegFileWCF(0, 31);
   `endif
 `endif
 
-		Reg#(Bool) initialize <- mkReg(True);
+		Reg#(Bool) initialize <- mkRegA(True);
 
     // The following rule is fired on system reset and writes all the register values to "0". This
     // rule will never fire otherwise

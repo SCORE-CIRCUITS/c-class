@@ -199,22 +199,22 @@ module mkstage2#(parameter Bit#(`xlen) hartid) (Ifc_stage2);
   Wire#(CSRtoDecode) wr_csrs <- mkWire();
 
   /*doc:reg: this register maintains the epoch value modified by the execute stage*/
-	Reg#(Bit#(1)) eEpoch <- mkConfigReg(0);
+	Reg#(Bit#(1)) eEpoch <- mkConfigRegA(0);
 
   /*doc:reg: this register maintains the epoch value modified by the write-back stage*/
-	Reg#(Bit#(1)) wEpoch <- mkConfigReg(0);
+	Reg#(Bit#(1)) wEpoch <- mkConfigRegA(0);
 
   /*doc:reg:
     this register is used to stall the current stage from processing any new instructions until a
     redirection from execute / write - back is received. The stall is generated when an trap is
     detected in this stage for the current instruction being processed. This prevents flooding
     the pipe with un - necessary instructions since a redirection is expected.*/
-  Reg#(Bool) rg_stall <- mkReg(False);
+  Reg#(Bool) rg_stall <- mkRegA(False);
 
   /*doc:reg:
     this register when True indicates the current stage is waiting for interrupts before
     sending any new info to the next stage*/
-  Reg#(Bool) rg_wfi   <- mkReg(False);
+  Reg#(Bool) rg_wfi   <- mkRegA(False);
 
   /*doc:wire: This wire indicates if any locally enabled interrupt is pending irrespective of the
   * global status of interrupt-enable or delegation. It simply carries mie&mip*/
@@ -223,10 +223,10 @@ module mkstage2#(parameter Bit#(`xlen) hartid) (Ifc_stage2);
   /*doc:reg:
     This register when set to true indicates that the current instruction being processed will
     have to be re - fetched and executed since the previous instruction was a CSR operation.*/
-  Reg#(Bool) rg_microtrap <- mkReg(False);
+  Reg#(Bool) rg_microtrap <- mkRegA(False);
 
   /*doc:reg: This register stores the micro-trap cause values*/
-  Reg#(Bit#(`causesize)) rg_microtrap_cause <- mkReg(0);
+  Reg#(Bit#(`causesize)) rg_microtrap_cause <- mkRegA(0);
 
   /*doc:wire:
     the following wires are used to ensure that rg_microtrap, rg_wfi and rg_stall are not set in the cycle a
@@ -240,24 +240,24 @@ module mkstage2#(parameter Bit#(`xlen) hartid) (Ifc_stage2);
 
   // This register indicates when an instruction passed the decode stage after a resume request is
   // received while is step is set.
-  Reg#(Bool) rg_step_done <- mkReg(False);
+  Reg#(Bool) rg_step_done <- mkRegA(False);
 `endif
 
   /*doc:reg:
     This register holds the latest value of operand1 from the RF. This will get updated
     every time a retirement to the same register occurs.*/
-  Reg#(FwdType) rg_op1[2] <- mkCReg(2, unpack(0));
+  Reg#(FwdType) rg_op1[2] <- mkCRegA(2, unpack(0));
 
   /*doc:reg:
     This register holds the latest value of operand2 from the RF. This will get updated
     every time a retirement to the same register occurs.*/
-  Reg#(FwdType) rg_op2[2] <- mkCReg(2, unpack(0));
+  Reg#(FwdType) rg_op2[2] <- mkCRegA(2, unpack(0));
 
-  Reg#(Op2type) rg_op2type[2] <- mkCReg(2, IntegerRF);
+  Reg#(Op2type) rg_op2type[2] <- mkCRegA(2, IntegerRF);
   /*doc:reg:
     This register holds the latest value of operand3 from the RF. This will get updated
     every time a retirement to the same register occurs.*/
-  Reg#(FwdType) rg_op3[2] <- mkCReg(2, unpack(0));
+  Reg#(FwdType) rg_op3[2] <- mkCRegA(2, unpack(0));
 
   // ---------------------- End Instatiations --------------------------//
 

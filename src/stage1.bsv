@@ -69,20 +69,20 @@ package stage1;
 
     // The following registers are use to the maintain epochs from various pipeline stages:
     // writeback and execute stage.
-    Reg#(Bit#(1)) rg_wEpoch <- mkReg(0);
-    Reg#(Bit#(1)) rg_eEpoch <- mkReg(0);
+    Reg#(Bit#(1)) rg_wEpoch <- mkRegA(0);
+    Reg#(Bit#(1)) rg_eEpoch <- mkRegA(0);
 
     // This register implements a simple state - machine which indicates how the instruction should
     // be extracted from the cache response.
-    Reg#(ActionType) rg_action <- mkReg(None);
+    Reg#(ActionType) rg_action <- mkRegA(None);
 
     // This register indicates that the lower 16 - bits of the response from the cache need to be
     // ignored. This happens because, when there is jump to non - 4-byte aligned address the cache
     // still receives a previous 4 - byte - ailgned address from the fetch stage.
-    Reg#(Bool) rg_receiving_upper <- mkReg(False);
+    Reg#(Bool) rg_receiving_upper <- mkRegA(False);
 
     // This register holds the 16 - bits of instruction from the previous cache response if required.
-    Reg#(PrevMeta) rg_prev <- mkReg(?);
+    Reg#(PrevMeta) rg_prev <- mkRegA(?);
 
     // This FIFO receives the response from the memory subsytem (a.k.a cache)
     FIFOF#(IMem_core_response#(32, `iesize)) ff_memory_response <- mkSizedBypassFIFOF(2);

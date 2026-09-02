@@ -133,7 +133,7 @@ module mkccore_axi4#(Bit#(`vaddr) resetpc, parameter Bit#(`xlen) hartid `ifdef t
   Ifc_riscv riscv <- mkriscv(resetpc, hartid `ifdef testmode ,test_mode `endif );
 
   `ifdef supervisor
-    Reg#(PTWState) rg_ptw_state <- mkReg(None);
+    Reg#(PTWState) rg_ptw_state <- mkRegA(None);
   `endif
     `ifdef hypervisor
     Ifc_ptwalk ptwalk <- mkptwalk;
@@ -160,11 +160,11 @@ module mkccore_axi4#(Bit#(`vaddr) resetpc, parameter Bit#(`xlen) hartid `ifdef t
   /*doc:reg: This register is used to keep track of the beats/bursts occurring during the write
   * operation of a data line to memory. A new line-write or an io-write operation can be initiated
   * only when rg_burst_count == 0, else the requests are stalled. */
-  Reg#(Bit#(8)) rg_burst_count <- mkReg(0);
+  Reg#(Bit#(8)) rg_burst_count <- mkRegA(0);
 
   /*doc:reg: While performing burst writes during line eviction, this register indicates the amount
    * the line should be shifted to send the next beat of data on the bus*/
-  Reg#(Bit#(TLog#(TMul#(TMul#(`dwords, 8), `dblocks)))) rg_shift_amount <- mkReg(`buswidth);
+  Reg#(Bit#(TLog#(TMul#(TMul#(`dwords, 8), `dblocks)))) rg_shift_amount <- mkRegA(`buswidth);
 `endif
   /*doc: capture the current privilege mode under which the current transaction is being carried
   * out. TODO: This should ideally come form the caches themselves. Capturing here can have issues.
@@ -325,11 +325,11 @@ module mkccore_axi4#(Bit#(`vaddr) resetpc, parameter Bit#(`xlen) hartid `ifdef t
 
   /*doc:reg: This register when Valid, indicaets that there is pending read line operation which got
    * delayed because of a contentious write happening on the same line address*/
-  Reg#(Maybe#(AXI4_Rd_Addr#(`paddr,`axi4_id_width, `USERSPACE))) rg_read_line_req <- mkReg(tagged Invalid);
+  Reg#(Maybe#(AXI4_Rd_Addr#(`paddr,`axi4_id_width, `USERSPACE))) rg_read_line_req <- mkRegA(tagged Invalid);
 
   /*doc:reg: This register when Valid, indicates the address to which a line a request is in
    * progress. This is used to delay a read operation on the same line initiated by the cache*/
-  Reg#(Maybe#(Bit#(`paddr))) rg_write_req <- mkReg(tagged Invalid);
+  Reg#(Maybe#(Bit#(`paddr))) rg_write_req <- mkRegA(tagged Invalid);
   
   /*doc:rule: This rule is used connect the cache enable signal for the data memory
    * subsystem*/

@@ -11,7 +11,7 @@ endinterface
 
 module mkingress(IFC_ingress);
 
-    Reg#(Bit#(1)) prev_inst_is_exp_or_int <- mkReg(0);
+    Reg#(Bit#(1)) prev_inst_is_exp_or_int <- mkRegA(0);
 
     method ActionValue#(Tuple7#(Bit#(3),Bit#(4),Bit#(64),Bit#(2),Bit#(64),Bit#(1),Bit#(1))) mva_encoder_input (Bit#(14) meta_data,Bit#(3) funct3,Bit#(5) rd_addr, Bit#(4) cause, Bit#(64) tval, Bit#(2) priv, Bit#(64) iaddr, Bit#(1) cause_type, Bit#(1) trap);
 

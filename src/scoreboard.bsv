@@ -36,13 +36,13 @@ package scoreboard ;
   module mkscoreboard#(parameter Bit#(`xlen) hartid)(Ifc_scoreboard);
 
   `ifdef spfpu
-    Vector#(64, Array#(Reg#(SBEntry))) rg_rf_board <- replicateM(mkCReg(2,unpack(0)));
+    Vector#(64, Array#(Reg#(SBEntry))) rg_rf_board <- replicateM(mkCRegA(2,unpack(0)));
   `else
-    Vector#(32, Array#(Reg#(SBEntry))) rg_rf_board <- replicateM(mkCReg(2,unpack(0)));
+    Vector#(32, Array#(Reg#(SBEntry))) rg_rf_board <- replicateM(mkCRegA(2,unpack(0)));
   `endif
   `ifdef no_wawstalls
     /*doc:reg: */
-    Reg#(Bit#(`wawid)) rg_renameid <- mkReg(0);
+    Reg#(Bit#(`wawid)) rg_renameid <- mkRegA(0);
   `endif
     /*doc:method: This method is used to lock a destination register. WAW is prevented by ensuring
     * that the rd of the new instruction is not already locked*/
