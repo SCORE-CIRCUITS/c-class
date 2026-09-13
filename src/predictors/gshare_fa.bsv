@@ -78,7 +78,7 @@ package gshare_fa;
             truncate(pc >> `ignore) 
           ^ zeroExtend((pc >> (`ignore + valueOf(TLog#(TDiv#(`bhtdepth,`bhtcols)))))[1:0]);
     Bit#(`histbits) _h = truncateLSB(history);
-    Bit#(TLog#(TDiv#(`bhtdepth,`bhtcols))) hist_hash = zeroExtend(_h << (valueOf(TLog#(`bhtdepth)) - `histbits));
+    Bit#(TLog#(TDiv#(`bhtdepth,`bhtcols))) hist_hash = zeroExtend(_h) << (valueOf(TLog#(TDiv#(`bhtdepth,`bhtcols))) - `histbits);
     return pc_hash ^ hist_hash;
   endfunction
 
