@@ -38,6 +38,7 @@ package stage1;
   typedef struct{
     Bit#(`vaddr) pc;
     Bit#(16) instruction;
+    Bit#(1) dEpoch;
     Bit#(2) epochs;
   `ifdef bpu
     BTBResponse btbresponse;
@@ -71,6 +72,7 @@ package stage1;
     // writeback and execute stage.
     Reg#(Bit#(1)) rg_wEpoch <- mkRegA(0);
     Reg#(Bit#(1)) rg_eEpoch <- mkRegA(0);
+    Reg#(Bit#(1)) rg_dEpoch <- mkRegA(0);
 
     // This register implements a simple state - machine which indicates how the instruction should
     // be extracted from the cache response.
@@ -239,16 +241,27 @@ package stage1;
       Bool enque_instruction = True;
       PrevMeta lv_prev = rg_prev;
       // if epochs do not match then drop the instruction
-      if(curr_epoch != imem_resp.epochs)begin
+      if(curr_epoch != imem_resp.epochs || stage0pc.dEpoch != rg_dEpoch)begin
         deq_response;
         rg_action <= None;
         enque_instruction = False;
         `logLevel( stage1, 1,$format("[%2d]STAGE1 : Dropping Instruction. ExpEpoch:%b CurrEpoch:%b",
             hartid, imem_resp.epochs, curr_epoch))
+        `logLevel( stage1, 1,$format("[%2d]STAGE1 : dEpoch packet:%b current:%b",
+          hartid, stage0pc.dEpoch, rg_dEpoch))
         rg_receiving_upper <= False;
       end
     `ifdef compressed
-      else if(rg_action == CheckPrev && rg_prev.epochs == curr_epoch)begin
+    else if(rg_action == CheckPrev &&
+        (rg_prev.epochs != curr_epoch || rg_prev.dEpoch != rg_dEpoch))begin
+      deq_response;
+      rg_action <= None;
+      rg_receiving_upper <= False;
+      enque_instruction = False;
+      `logLevel( stage1, 1,$format("[%2d]STAGE1 : Dropping stale compressed instruction, dEpoch:%b current:%b",
+      hartid, rg_prev.dEpoch, rg_dEpoch))
+    end
+    else if(rg_action == CheckPrev && rg_prev.epochs == curr_epoch && rg_prev.dEpoch == rg_dEpoch)begin
       `ifdef bpu
         btbresponse = rg_prev.btbresponse;
         if(!btbresponse.hi)begin
@@ -263,6 +276,7 @@ package stage1;
 
           lv_prev.instruction = truncateLSB(imem_resp.word);
           lv_prev.pc = stage0pc.address;
+          lv_prev.dEpoch = stage0pc.dEpoch;
           stage0pc.address = rg_prev.pc | zeroExtend(2'b10);
 
         `ifdef bpu
@@ -301,6 +315,7 @@ package stage1;
 
           lv_prev.instruction = imem_resp.word[31 : 16];
           lv_prev.pc = stage0pc.address;
+          lv_prev.dEpoch = stage0pc.dEpoch;
         `ifdef bpu
           lv_prev.btbresponse = stage0pc.btbresponse;
         `endif
@@ -329,6 +344,7 @@ package stage1;
           final_instruction = zeroExtend(imem_resp.word[15 : 0]);
           lv_prev.instruction = truncateLSB(imem_resp.word);
           lv_prev.pc = stage0pc.address;
+          lv_prev.dEpoch = stage0pc.dEpoch;
         `ifdef bpu
           // check if prediction was for lower-16 else reset btbresponse before forwarding.
           rg_action <= (!btbresponse.hi && btbresponse.prediction > 1) ? None: CheckPrev;
@@ -347,6 +363,7 @@ package stage1;
       `endif
       end
       lv_prev.epochs = curr_epoch;
+      lv_prev.dEpoch = stage0pc.dEpoch;
       rg_prev <= lv_prev;
       Bit#(`vaddr) incr_value = (compressed  && wr_csr_misa_c == 1) ? 2:4;
       Bit#(`causesize) cause = imem_resp.cause;
@@ -366,6 +383,7 @@ package stage1;
 			let pipedata = PIPE1{program_counter : stage0pc.address,
                     instruction : final_instruction,
                     epochs:{rg_eEpoch, rg_wEpoch},
+                    dEpoch: rg_dEpoch,
                     trap : trap
                   `ifdef bpu
                     ,btbresponse: btbresponse
@@ -456,6 +474,11 @@ package stage1;
       // Implicit Conditions : None
       method Action ma_update_wEpoch;
         rg_wEpoch<=~rg_wEpoch;
+      endmethod
+
+      method Action ma_update_dEpoch;
+        `logLevel( stage1, 0, $format("[%2d]STAGE1: dEpoch %b -> %b",hartid,rg_dEpoch,~rg_dEpoch))
+        rg_dEpoch<=~rg_dEpoch;
       endmethod
   
       // This method captures the "c" of misa csr
