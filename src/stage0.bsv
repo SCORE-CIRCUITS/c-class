@@ -99,6 +99,7 @@ package stage0;
 
     /*doc:reg: register to maintain the epoch in sync with execute stage*/
     Reg#(Bit#(1)) rg_wEpoch <- mkRegA(0);
+    Reg#(Bit#(1)) rg_dEpoch <- mkRegA(0);
 
     /*doc:reg: This register is used in the initializing the pc with reset-pc being driven by SoC.*/
     Reg#(Bool) rg_initialize <- mkRegA(True);
@@ -240,6 +241,7 @@ package stage0;
             `ifdef supervisor !rg_sfence[0] && `endif 
             `ifdef hypervisor !rg_hfence[0] && `endif True) begin
           tx_tostage1.u.enq(Stage0PC{   address      : rg_pc[0] & signExtend(3'b100)
+                    , dEpoch      : rg_dEpoch
                     `ifdef compressed   ,discard     : rg_pc[0][1]==1        `endif
                     `ifdef bpu          ,btbresponse : bpu_resp.btbresponse `endif  });
           `logLevel( stage0, 0, $format("[%2d]STAGE0: Sending PC:%h to Stage1",hartid, rg_pc[0]))
@@ -262,12 +264,18 @@ package stage0;
       method Action ma_update_wEpoch ();
         rg_wEpoch <= ~rg_wEpoch;
       endmethod
+      method Action ma_update_dEpoch ();
+        `logLevel( stage0, 0, $format("[%2d]STAGE0: dEpoch %b -> %b",hartid,rg_dEpoch,~rg_dEpoch))
+        rg_dEpoch <= ~rg_dEpoch;
+      endmethod
       method Action ma_reset_done(Bool _done);
         wr_reset_sequence_done <= _done;
       endmethod:ma_reset_done
 
       method Action ma_flush (Stage0Flush fl) if(!rg_initialize && wr_reset_sequence_done);
         `logLevel( stage0, 1, $format("[%2d]STAGE0: Recieved Flush:",hartid,fshow(fl)))
+        `logLevel( stage0, 0, $format("[%2d]STAGE0: redirect PC:%h dEpoch:%b",
+                                      hartid, fl.pc, rg_dEpoch))
       `ifdef ifence
         rg_fence[1] <= fl.fence;
       `endif
@@ -294,6 +302,7 @@ package stage0;
 `ifdef bpu
     interface s0_bpu = interface Ifc_s0_bpu
       method ma_train_bpu   = bpu.ma_train_bpu;
+      method ma_invalidate_btb = bpu.ma_invalidate_btb;
     `ifdef gshare
       method ma_mispredict  = bpu.ma_mispredict;
     `endif

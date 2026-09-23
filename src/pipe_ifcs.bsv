@@ -38,6 +38,9 @@ interface Ifc_s0_common;
   /*doc:method: this method will be enabled to indicate a flush from the write-back stage*/
   method Action ma_update_wEpoch ();
 
+  /*doc:method: this method will be enabled when the decode stage redirects fetch*/
+  method Action ma_update_dEpoch ();
+
   /*doc:method: This method is fired either from a mis-prediction from the execute stage or a trap
   from the write-back stage or due to an sfence or fence being committed. */
   method Action ma_flush (Stage0Flush fl);
@@ -53,6 +56,7 @@ endinterface:Ifc_s0_common
 interface Ifc_s0_bpu;
   /*doc : method : method to training the BTB and BHT tables*/
   method Action ma_train_bpu (Training_data td);
+  method Action ma_invalidate_btb (Bit#(TLog#(`btbdepth)) index);
 `ifdef gshare
   /*doc : method: This method is fired when there is a conditional misprediction */
   method Action ma_mispredict (Tuple2#(Bool, Bit#(`histlen)) g);
@@ -96,6 +100,9 @@ interface Ifc_s1_common;
 
     // method to update epochs on redirection from writeback stage
 	method Action ma_update_wEpoch;
+
+    // method to update the epoch on redirection from decode stage
+  	method Action ma_update_dEpoch;
 
   // csrs from the csrfile.
   method Action ma_csr_misa_c (Bit#(1) c);
@@ -386,6 +393,15 @@ interface Ifc_s2_common;
 `endif
   /*doc:method: input from the csr file containing all the required csrs to capture exceptions.*/
   method Action ma_csrs (CSRtoDecode csr);
+
+`ifndef core_clkgate
+  (*always_ready*)
+`endif
+  method Tuple2#(Bool, Bit#(`vaddr)) mv_flush;
+
+`ifdef bpu
+  method Tuple2#(Bool, Bit#(TLog#(`btbdepth))) mv_btb_invalidate;
+`endif
 
   /*doc:method: this method indicates that a flush has been generated from the exe / wb stage and
   thus the current stage can quit the stall that was initiated due to an exception generation */

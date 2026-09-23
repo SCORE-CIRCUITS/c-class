@@ -99,6 +99,7 @@ package gshare_fa;
 
     /*doc : method : This method captures if the bpu is enabled through csr or not*/
     method Action ma_bpu_enable (Bool e);
+    method Action ma_invalidate_btb (Bit#(TLog#(`btbdepth)) index);
   endinterface
 
 `ifdef bpu_noinline
@@ -251,7 +252,7 @@ package gshare_fa;
     `ifdef compressed
       Bool instr16 = False;
     `endif
-
+      Bit#(TLog#(`btbdepth)) btb_index = 0;
       if(!r.fence && wr_bpu_enable) begin
         // a one - hot vector to store the hits of the btb
         Bit#(`btbdepth) match_;
@@ -262,6 +263,11 @@ package gshare_fa;
 
         hit = unpack(|match_);
         let hit_entry = select(readVReg(v_reg_btb_entry), unpack(match_));
+
+        
+        for(Integer i = 0; i < `btbdepth; i = i + 1)
+          if(match_[i] == 1)
+            btb_index = fromInteger(i);
 
         if(|match_ == 1) begin
           `logLevel( bpu, 1, $format("[%2d]BPU : BTB Hit: ",hartid,fshow(hit_entry)))
@@ -320,7 +326,7 @@ package gshare_fa;
         `endif
       end
 
-      let btbresponse = BTBResponse{prediction: prediction_, btbhit: hit
+      let btbresponse = BTBResponse{btb_index: btb_index, prediction: prediction_, btbhit: hit
                         `ifdef compressed , hi: hi `endif
                         `ifdef gshare , history : lv_ghr`endif };
 
@@ -396,6 +402,11 @@ package gshare_fa;
 
     method Action ma_bpu_enable (Bool e);
       wr_bpu_enable <= e;
+    endmethod
+
+    method Action ma_invalidate_btb (Bit#(TLog#(`btbdepth)) index);
+      `logLevel( bpu, 0, $format("[%2d]BPU: Invalidating BTB index:%d",hartid,index))
+      v_reg_btb_tag[index].valid <= False;
     endmethod
 
   endmodule

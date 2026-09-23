@@ -772,7 +772,8 @@ module mkstage3#(parameter Bit#(`xlen) hartid) (Ifc_stage3);
 	    'b10: nextpc = nextpc - ( truncate(offset) & {'1,~(pack(inst_type==JALR))}); 
 	    'b11: nextpc = nextpc - truncate(offset); 
     endcase
-    if( (inst_type == BRANCH  && btaken != prediction[`statesize-1]) ||
+    if( (inst_type == BRANCH  &&
+       (btaken != prediction[`statesize-1] || (btaken==1'b1 && nextpc != base))) ||
         ( (inst_type == JALR || inst_type == JAL ) && nextpc != base) )begin
 	    redirection = !trap;
     end
