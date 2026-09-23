@@ -373,6 +373,7 @@ typedef struct{
 `ifdef bpu
   BTBResponse btbresponse;
 `endif
+  Bit#(1) dEpoch;
   Bit#(addr)  address;      // XLEN:0
 } Stage0PC#(numeric type addr) deriving(Bits, Eq, FShow);
 
@@ -388,6 +389,7 @@ typedef struct{
 	Bit#(`vaddr) program_counter;
 	Bit#(32) instruction;
 	Bit#(`iesize) epochs;
+  Bit#(1) dEpoch;
   Bool trap ;
   Bit#(`causesize) cause;
 }PIPE1 deriving (Bits, Eq, FShow);
@@ -828,6 +830,7 @@ typedef struct{
   `ifdef gshare
     Bit#(`histlen) history;           // bits [histlen+statesize: statesize+1]
   `endif
+    Bit#(TLog#(`btbdepth)) btb_index;
     Bit#(`statesize) prediction;      // bits [statesize:1]
     Bool btbhit ;                     // bits [0]
   } BTBResponse deriving(Bits, Eq, FShow);

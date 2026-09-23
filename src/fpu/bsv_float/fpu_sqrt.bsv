@@ -102,10 +102,10 @@ module mkfpu_sqrt(Ifc_fpu_sqrt#(fpinp,fpman,fpexp))
     let fPINP = valueOf(fpinp);
     let eXT   = valueOf(ext_fpman);
 
-    Reg#(Maybe#(Floating_output#(fpinp))) ff_final_out <- mkDReg(tagged Invalid); //Final Output FIFO
+    Reg#(Maybe#(Floating_output#(fpinp))) ff_final_out <- mkDRegA(tagged Invalid); //Final Output FIFO
 
-    ConfigReg#(Stage_data#(fpman,fpexp)) rg_inter_stage <- mkConfigReg(?);         //Inter Stage register
-    ConfigReg#(Bit#(6)) rg_state <-mkConfigReg(0);                  //State counter of the module
+    ConfigReg#(Stage_data#(fpman,fpexp)) rg_inter_stage <- mkConfigRegA(?);         //Inter Stage register
+    ConfigReg#(Bit#(6)) rg_state <-mkConfigRegA(0);                  //State counter of the module
     Wire#(Bool) wr_flush <- mkDWire(False);
     (*mutually_exclusive = "rl_flush,rl_stage2,rl_inter_stage,rl_final_stage"*)
     rule rl_flush(wr_flush);
@@ -441,9 +441,9 @@ endmodule
 //(*synthesize*)
 /*module mkTb_fpu_sqrt(Empty);
 
-	Reg#(Bit#(32)) rg_clock <-mkReg(0);
-    Reg#(Bit#(32)) rg__operand1ut1 <- mkReg(32'h76af0cb2);
-    //Reg#(Bit#(64)) rg__operand1ut1 <- mkReg(64'h019000000000000);
+	Reg#(Bit#(32)) rg_clock <-mkRegA(0);
+    Reg#(Bit#(32)) rg__operand1ut1 <- mkRegA(32'h76af0cb2);
+    //Reg#(Bit#(64)) rg__operand1ut1 <- mkRegA(64'h019000000000000);
 
 	Ifc_fpu_sqrt#(32,23,8) square_root <- mkfpu_sqrt;
 
@@ -471,14 +471,14 @@ endmodule
 module mkTb_fpu_sqrt_2 (Empty);
     
     	RegFile #(Bit #(10), Bit #(36))  input_data <- mkRegFileFullLoad("./testcases/fpgen_testcases/Sqrt_testcases.hex");
-	Reg #(Bit #(10)) index <- mkReg(0);
-	Reg #(Bit #(32)) state_clock <- mkReg(1);
-    Reg #(Bit #(32)) rg_state <- mkReg(0);
+	Reg #(Bit #(10)) index <- mkRegA(0);
+	Reg #(Bit #(32)) state_clock <- mkRegA(1);
+    Reg #(Bit #(32)) rg_state <- mkRegA(0);
  	/*****************Module Instantiation******************************/
 //	Ifc_fpu_sqrt#(32,23,8) sqrt <- mkfpu_sqrt;
 	/******************File Creation************************************/
-/*	Reg#(int) cnt <- mkReg(0);                  //File Creation counter
-	let fh <- mkReg(InvalidFile) ;				//File Handler
+/*	Reg#(int) cnt <- mkRegA(0);                  //File Creation counter
+	let fh <- mkRegA(InvalidFile) ;				//File Handler
 	rule open (cnt == 0 ) ;
 		File tb_sqrt_output <- $fopen("tb_sqrt_output.hex", "w+"); 
 		fh <= tb_sqrt_output;

@@ -94,25 +94,25 @@ module mkrestoring_div#(parameter Bit#(`xlen) hartid) (Ifc_restoring_div);
   staticAssert(valueOf(TExp#(TLog#(`DIVSTAGES))) == `DIVSTAGES, "DIVSTAGES is not power of 2");
   staticAssert(`DIVSTAGES<= valueOf(`xlen), "DIVSTAGES cannot be larger than `xlen");
 
-  Reg#(Bit#(TLog#(TAdd#(`DIVSTAGES, 1)))) rg_count <-mkReg(0);
+  Reg#(Bit#(TLog#(TAdd#(`DIVSTAGES, 1)))) rg_count <-mkRegA(0);
 
-  Reg#(Bit#(TAdd#(1, TMul#(2, `xlen)))) partial<-mkReg(0);
-  Reg#(Bit#(`xlen)) rg_op2 <-mkReg(0);
-  Reg#(Bit#(`xlen)) rg_in1 <-mkReg(0);
-  Reg#(Bool) quotient_remainder <- mkReg(False);
-  Reg#(Bool) rg_upperbits <- mkReg(False);
-  Reg#(Bool) rg_complement <- mkReg(False);
-  Reg#(Bit#(1)) rg_sign_op1 <- mkReg(0);
+  Reg#(Bit#(TAdd#(1, TMul#(2, `xlen)))) partial<-mkRegA(0);
+  Reg#(Bit#(`xlen)) rg_op2 <-mkRegA(0);
+  Reg#(Bit#(`xlen)) rg_in1 <-mkRegA(0);
+  Reg#(Bool) quotient_remainder <- mkRegA(False);
+  Reg#(Bool) rg_upperbits <- mkRegA(False);
+  Reg#(Bool) rg_complement <- mkRegA(False);
+  Reg#(Bit#(1)) rg_sign_op1 <- mkRegA(0);
 
-  ConfigReg#(Bool)  rg_valid <- mkConfigReg(False);
-  Reg#(Bit#(`xlen))  rg_result <- mkReg(0);
+  ConfigReg#(Bool)  rg_valid <- mkConfigRegA(False);
+  Reg#(Bit#(`xlen))  rg_result <- mkRegA(0);
 `ifdef RV64
-  Reg#(Bool)        rg_wordop <- mkReg(False);
+  Reg#(Bool)        rg_wordop <- mkRegA(False);
 `endif
 
   `ifdef arith_trap
     Wire#(Bit#(1)) wr_arith_trap <- mkDWire(0);
-    Reg#(Bool)  rg_trap <- mkDReg(False);
+    Reg#(Bool)  rg_trap <- mkDRegA(False);
   `endif
 
   rule rl_display;

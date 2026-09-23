@@ -293,10 +293,10 @@ Wrapper3#(Tuple2#(Bit#(23), Bit#(8)),Tuple2#(Bit#(23), Bit#(8)), Tuple2#(Bit#(23
 
 
  	Ifc_fpu_dp_to_int converter <- mkfpu_dp_to_int();
- 	Reg#(Bit#(32)) state_clock <- mkReg(0);
- 	   Reg#(Bit#(64)) wr_operand1 <- mkReg('h0200000000000000);
- 	   //Reg#(Bit#(32)) wr_operand1 <- mkReg('hbf214efa);
- 	   //Reg#(Bit#(32)) wr_operand1 <- mkReg('h91c82527);
+ 	Reg#(Bit#(32)) state_clock <- mkRegA(0);
+ 	   Reg#(Bit#(64)) wr_operand1 <- mkRegA('h0200000000000000);
+ 	   //Reg#(Bit#(32)) wr_operand1 <- mkRegA('hbf214efa);
+ 	   //Reg#(Bit#(32)) wr_operand1 <- mkRegA('h91c82527);
     
  	rule state_clock_count;
  		state_clock <= state_clock + 1;

@@ -80,9 +80,9 @@ endmodule
 
 // module mkTb_fpu_sign_injection();
 // Ifc_fpu_sign_injection#(32,23,8) inst_fpu_sign_injection <- mkfpu_sign_injection();
-// Reg#(Bit#(32)) rg_clock <- mkReg(0);
-// Reg#(Bit#(32)) rg_operand1<-mkReg('hff800000); 
-// Reg#(Bit#(32)) rg_operand2<-mkReg('hff800000); 
+// Reg#(Bit#(32)) rg_clock <- mkRegA(0);
+// Reg#(Bit#(32)) rg_operand1<-mkRegA('hff800000); 
+// Reg#(Bit#(32)) rg_operand2<-mkRegA('hff800000); 
 
 // rule get_input(rg_clock == 0);
 // inst_fpu_sign_injection._start(rg_operand1,rg_operand2,'b000);

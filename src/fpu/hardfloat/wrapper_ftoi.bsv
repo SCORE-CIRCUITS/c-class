@@ -22,8 +22,8 @@ package wrapper_ftoi;
   module mkwrapper_ftoi(Ifc_wrapper_ftoi#(expWidth, sigWidth, intWidth));
     Ifc_ftoi#(expWidth, sigWidth, intWidth) ftoi <- mkftoi;
     
-    Vector#(`ftoi_stages, Reg#(Tuple3#(Bit#(intWidth), Bit#(3), Bit#(2))))  rg_inputs  <- replicateM(mkReg(unpack(0)));
-    Vector#(`ftoi_stages, Reg#(Bool))  rg_valid  <- replicateM(mkDReg(False));
+    Vector#(`ftoi_stages, Reg#(Tuple3#(Bit#(intWidth), Bit#(3), Bit#(2))))  rg_inputs  <- replicateM(mkRegA(unpack(0)));
+    Vector#(`ftoi_stages, Reg#(Bool))  rg_valid  <- replicateM(mkDRegA(False));
    
 		if(`ftoi_stages > 1) begin
     	rule rl_start;

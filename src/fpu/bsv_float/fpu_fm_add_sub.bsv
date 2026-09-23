@@ -157,7 +157,7 @@ module mkfpu_fm_add_sub(Ifc_fpu_fm_add_sub#(fpinp,fpman,fpexp))
     Reg#(Stage4_data_type#(fpman,fpexp))                      ff_stage4           <-   mkConfigRegU();
     Reg#(Stage5_data_type#(fpman,fpexp))                      ff_stage5           <-   mkConfigRegU();
     Reg#(Input_data_type#(fpinp,fpman,fpexp))                 ff_input_register   <-   mkConfigRegU();
-    Reg#(FMA_states)                                          rg_state_handler    <-   mkReg(Begin);
+    Reg#(FMA_states)                                          rg_state_handler    <-   mkRegA(Begin);
     Wire#(Bool)                                               wr_flush            <-   mkDWire(False);
 
     function zeroExtendLSB(inp_man) = unpack(reverseBits(extend(reverseBits(pack(inp_man))))); 
@@ -892,10 +892,10 @@ module mkfpu_fm_add_sub(Ifc_fpu_fm_add_sub#(fpinp,fpman,fpexp))
 	    Wrapper3#(Bit#(64),Bit#(64),Bit#(64),Tuple3#(Bit#(11),Bit#(11),Bit#(11)))                                                          getExp64        <- mkUniqueWrapper3(getExp);
 	    Wrapper3#(Bit#(64),Bit#(64),Bit#(64),Tuple3#(Bit#(32),Bit#(32),Bit#(32)))                                                          setCanonicalNaN <- mkUniqueWrapper3(setCanNaN);
 
-	    Reg#(Bit#(32)) rg_clock <-mkReg(0);
-	    Reg#(Bit#(32)) operand1 <- mkReg(32'h31f36ab4);
-	    Reg#(Bit#(32)) operand2 <- mkReg(32'h08835f4d);
-	    Reg#(Bit#(32)) operand3 <- mkReg(32'h0);
+	    Reg#(Bit#(32)) rg_clock <-mkRegA(0);
+	    Reg#(Bit#(32)) operand1 <- mkRegA(32'h31f36ab4);
+	    Reg#(Bit#(32)) operand2 <- mkRegA(32'h08835f4d);
+	    Reg#(Bit#(32)) operand3 <- mkRegA(32'h0);
 
 	    rule rl_count_clock ;
 	      	rg_clock<=rg_clock+1;

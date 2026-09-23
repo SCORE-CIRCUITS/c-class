@@ -199,22 +199,25 @@ module mkstage2#(parameter Bit#(`xlen) hartid) (Ifc_stage2);
   Wire#(CSRtoDecode) wr_csrs <- mkWire();
 
   /*doc:reg: this register maintains the epoch value modified by the execute stage*/
-	Reg#(Bit#(1)) eEpoch <- mkConfigReg(0);
+	Reg#(Bit#(1)) eEpoch <- mkConfigRegA(0);
 
   /*doc:reg: this register maintains the epoch value modified by the write-back stage*/
-	Reg#(Bit#(1)) wEpoch <- mkConfigReg(0);
+	Reg#(Bit#(1)) wEpoch <- mkConfigRegA(0);
+
+  /*doc:reg: this register maintains the epoch value modified by the decode stage*/
+  Reg#(Bit#(1)) dEpoch <- mkConfigRegA(0);
 
   /*doc:reg:
     this register is used to stall the current stage from processing any new instructions until a
     redirection from execute / write - back is received. The stall is generated when an trap is
     detected in this stage for the current instruction being processed. This prevents flooding
     the pipe with un - necessary instructions since a redirection is expected.*/
-  Reg#(Bool) rg_stall <- mkReg(False);
+  Reg#(Bool) rg_stall <- mkRegA(False);
 
   /*doc:reg:
     this register when True indicates the current stage is waiting for interrupts before
     sending any new info to the next stage*/
-  Reg#(Bool) rg_wfi   <- mkReg(False);
+  Reg#(Bool) rg_wfi   <- mkRegA(False);
 
   /*doc:wire: This wire indicates if any locally enabled interrupt is pending irrespective of the
   * global status of interrupt-enable or delegation. It simply carries mie&mip*/
@@ -223,16 +226,22 @@ module mkstage2#(parameter Bit#(`xlen) hartid) (Ifc_stage2);
   /*doc:reg:
     This register when set to true indicates that the current instruction being processed will
     have to be re - fetched and executed since the previous instruction was a CSR operation.*/
-  Reg#(Bool) rg_microtrap <- mkReg(False);
+  Reg#(Bool) rg_microtrap <- mkRegA(False);
 
   /*doc:reg: This register stores the micro-trap cause values*/
-  Reg#(Bit#(`causesize)) rg_microtrap_cause <- mkReg(0);
+  Reg#(Bit#(`causesize)) rg_microtrap_cause <- mkRegA(0);
 
   /*doc:wire:
     the following wires are used to ensure that rg_microtrap, rg_wfi and rg_stall are not set in the cycle a
     redirection from the exe / wb stage is received.*/
   Wire#(Bool) wr_flush_from_exe <- mkDWire(False);
   Wire#(Bool) wr_flush_from_wb  <- mkDWire(False);
+  Wire#(Bool) wr_flush_from_decode <- mkDWire(False);
+  Wire#(Bit#(`vaddr)) wr_redirect_pc <- mkDWire(0);
+`ifdef bpu
+  Wire#(Bool) wr_invalidate_btb <- mkDWire(False);
+  Wire#(Bit#(TLog#(`btbdepth))) wr_invalidate_btb_index <- mkDWire(0);
+`endif
 
 `ifdef debug
   /*doc:wire: This wire will capture info about the current debug state of the core*/
@@ -240,24 +249,24 @@ module mkstage2#(parameter Bit#(`xlen) hartid) (Ifc_stage2);
 
   // This register indicates when an instruction passed the decode stage after a resume request is
   // received while is step is set.
-  Reg#(Bool) rg_step_done <- mkReg(False);
+  Reg#(Bool) rg_step_done <- mkRegA(False);
 `endif
 
   /*doc:reg:
     This register holds the latest value of operand1 from the RF. This will get updated
     every time a retirement to the same register occurs.*/
-  Reg#(FwdType) rg_op1[2] <- mkCReg(2, unpack(0));
+  Reg#(FwdType) rg_op1[2] <- mkCRegA(2, unpack(0));
 
   /*doc:reg:
     This register holds the latest value of operand2 from the RF. This will get updated
     every time a retirement to the same register occurs.*/
-  Reg#(FwdType) rg_op2[2] <- mkCReg(2, unpack(0));
+  Reg#(FwdType) rg_op2[2] <- mkCRegA(2, unpack(0));
 
-  Reg#(Op2type) rg_op2type[2] <- mkCReg(2, IntegerRF);
+  Reg#(Op2type) rg_op2type[2] <- mkCRegA(2, IntegerRF);
   /*doc:reg:
     This register holds the latest value of operand3 from the RF. This will get updated
     every time a retirement to the same register occurs.*/
-  Reg#(FwdType) rg_op3[2] <- mkCReg(2, unpack(0));
+  Reg#(FwdType) rg_op3[2] <- mkCRegA(2, unpack(0));
 
   // ---------------------- End Instatiations --------------------------//
 
@@ -282,6 +291,11 @@ module mkstage2#(parameter Bit#(`xlen) hartid) (Ifc_stage2);
   `endif
   `ifdef bpu
     let btbresponse = rx_pipe1.u.first.btbresponse;
+  `endif
+    Bit#(`vaddr) next_pc = pc + 4;
+  `ifdef compressed
+    if (compressed)
+      next_pc = pc + 2;
   `endif
     // ---------------------------------------------------------------------------------------- //
 
@@ -353,8 +367,10 @@ module mkstage2#(parameter Bit#(`xlen) hartid) (Ifc_stage2);
                             `endif };
 
 
-    if({eEpoch, wEpoch} != epochs)begin
+    if({eEpoch, wEpoch} != epochs || rx_pipe1.u.first.dEpoch != dEpoch)begin
       `logLevel( stage2, 0, $format("[%2d]STAGE2 : Dropping Instruction due to epoch mis - match",hartid))
+      `logLevel( stage2, 0, $format("[%2d]STAGE2 : dEpoch packet:%b current:%b",hartid,
+                                    rx_pipe1.u.first.dEpoch, dEpoch))
       rx_pipe1.u.deq;
     `ifdef rtldump
       rx_commitlog.u.deq;
@@ -365,6 +381,25 @@ module mkstage2#(parameter Bit#(`xlen) hartid) (Ifc_stage2);
        `endif
     end
     else begin
+    `ifdef bpu
+      if (btbresponse.btbhit && instrType != BRANCH && instrType != JAL && instrType != JALR) begin
+        `logLevel( stage2, 0, $format("[%2d]STAGE2: stale BTB hit index:%d prediction:%d PC:%h",
+                                      hartid, btbresponse.btb_index,
+                                      btbresponse.prediction, pc))
+        if (btbresponse.prediction[`statesize - 1] == 1 &&
+            !wr_flush_from_exe && !wr_flush_from_wb) begin
+          wr_flush_from_decode <= True;
+          wr_redirect_pc <= next_pc;
+          `logLevel( stage2, 0, $format("[%2d]STAGE2: dEpoch %b -> %b",hartid,dEpoch,~dEpoch))
+          dEpoch <= ~dEpoch;
+          `logLevel( stage2, 0, $format("[%2d]STAGE2: decode redirect to next PC:%h",hartid,next_pc))
+        end
+        wr_invalidate_btb <= True;
+        wr_invalidate_btb_index <= btbresponse.btb_index;
+        `logLevel( stage2, 0, $format("[%2d]STAGE2: invalidating BTB index:%d",hartid,
+                    btbresponse.btb_index))
+      end
+    `endif
       if (instrType == WFI) begin
         if(!wr_flush_from_exe && !wr_flush_from_wb) begin
           `logLevel( stage2, 0, $format("[%2d]STAGE2 : Encountered WFI",hartid))
@@ -563,6 +598,11 @@ module mkstage2#(parameter Bit#(`xlen) hartid) (Ifc_stage2);
       wr_flush_from_wb <= True;
   		wEpoch<=~wEpoch;
   	endmethod
+
+    method mv_flush = tuple2(wr_flush_from_decode, wr_redirect_pc);
+  `ifdef bpu
+    method mv_btb_invalidate = tuple2(wr_invalidate_btb, wr_invalidate_btb_index);
+  `endif
   
     method Action ma_clear_stall (Bool upd) if(rg_stall);
       if(upd) begin

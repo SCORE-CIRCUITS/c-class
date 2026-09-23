@@ -137,19 +137,23 @@ module mkriscv#(Bit#(`vaddr) resetpc, parameter Bit#(`xlen) hartid `ifdef testmo
     Ifc_stage5  stage5 <- mkstage5(hartid);
     
     /*doc:reg: This register stays high once the hart has been reset */
-    Reg#(Bit#(1)) rg_reset_done <- mkReg(0);
+    Reg#(Bit#(1)) rg_reset_done <- mkRegA(0);
     /*doc:reg: This register sends a single cycle pulse one the hart is out of reset*/
-    Reg#(Bit#(1)) rg_reset_event <- mkDReg(0);
+    Reg#(Bit#(1)) rg_reset_event <- mkDRegA(0);
     /*doc:reg: This register is used to set the above registers after certain amount of clock cycles
      * have passed since the deassertion of the reset*/
-    Reg#(Bit#(TAdd#(1,TLog#(`reset_cycles)))) rg_reset_cycle <- mkReg(0);
+    Reg#(Bit#(TAdd#(1,TLog#(`reset_cycles)))) rg_reset_cycle <- mkRegA(0);
 
     let wbflush = stage5.common.mv_flush;
     let {exeflush, exepc} = stage3.common.mv_flush;
+    let {decodeflush, decodepc} = stage2.common.mv_flush;
+  `ifdef bpu
+    let {invalidate_btb, invalidate_btb_index} = stage2.common.mv_btb_invalidate;
+  `endif
 
 `ifdef perfmonitors
     /*doc:wire: */
-    Reg#(Bit#(TSub#(`mhpm_eventcount,1))) wr_total_count <- mkReg(0);
+    Reg#(Bit#(TSub#(`mhpm_eventcount,1))) wr_total_count <- mkRegA(0);
   `ifdef icache
     Wire#(Bit#(5)) wr_icache_counters <- mkDWire(0);
   `endif
@@ -318,18 +322,34 @@ module mkriscv#(Bit#(`vaddr) resetpc, parameter Bit#(`xlen) hartid `ifdef testmo
     endrule
   `endif
     
-    rule rl_flush_stage0(exeflush || wbflush.flush);
-        stage0.common.ma_flush(Stage0Flush{ pc : wbflush.flush ? wbflush.newpc : exepc
+    rule rl_flush_stage0(exeflush || wbflush.flush || decodeflush);
+      `logLevel( riscv, 0, $format("[%2d]RISCV: flush WB:%b EXE:%b DECODE:%b PC:%h",
+                                   hartid, wbflush.flush, exeflush, decodeflush,
+                                   wbflush.flush ? wbflush.newpc : exeflush ? exepc : decodepc))
+      stage0.common.ma_flush(Stage0Flush{ pc : wbflush.flush ? wbflush.newpc : exeflush ? exepc : decodepc
                                 `ifdef ifence
-                                  ,fence : wbflush.fencei
+                                  ,fence : wbflush.flush ? wbflush.fencei : False
                                 `endif
 															 	`ifdef hypervisor
-                                  , hfence :  wbflush.hfence
+                                  , hfence :  wbflush.flush ? wbflush.hfence : False
                                 `endif 
                                 `ifdef supervisor
-                                  , sfence :  wbflush.sfence
+                                  , sfence :  wbflush.flush ? wbflush.sfence : False
                                 `endif });
+      if (decodeflush && !exeflush && !wbflush.flush) begin
+        `logLevel( riscv, 0, $format("[%2d]RISCV: updating upstream dEpoch copies",hartid))
+        stage0.common.ma_update_dEpoch();
+        stage1.common.ma_update_dEpoch();
+      end
     endrule:rl_flush_stage0
+
+  `ifdef bpu
+    rule rl_invalidate_btb(invalidate_btb);
+      `logLevel( riscv, 0, $format("[%2d]RISCV: invalidating BTB index:%d",
+                                   hartid, invalidate_btb_index))
+      stage0.s0_bpu.ma_invalidate_btb(invalidate_btb_index);
+    endrule:rl_invalidate_btb
+  `endif
     /*doc:rule: */
     rule rl_assert_reset_done;
       if (rg_reset_cycle == `reset_cycles) begin

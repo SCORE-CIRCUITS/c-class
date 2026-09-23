@@ -78,7 +78,7 @@ package gshare_fa;
             truncate(pc >> `ignore) 
           ^ zeroExtend((pc >> (`ignore + valueOf(TLog#(TDiv#(`bhtdepth,`bhtcols)))))[1:0]);
     Bit#(`histbits) _h = truncateLSB(history);
-    Bit#(TLog#(TDiv#(`bhtdepth,`bhtcols))) hist_hash = zeroExtend(_h << (valueOf(TLog#(`bhtdepth)) - `histbits));
+    Bit#(TLog#(TDiv#(`bhtdepth,`bhtcols))) hist_hash = zeroExtend(_h) << (valueOf(TLog#(TDiv#(`bhtdepth,`bhtcols))) - `histbits);
     return pc_hash ^ hist_hash;
   endfunction
 
@@ -99,6 +99,7 @@ package gshare_fa;
 
     /*doc : method : This method captures if the bpu is enabled through csr or not*/
     method Action ma_bpu_enable (Bool e);
+    method Action ma_invalidate_btb (Bit#(TLog#(`btbdepth)) index);
   endinterface
 
 `ifdef bpu_noinline
@@ -119,12 +120,12 @@ package gshare_fa;
     /*doc : vec : This vector of register holds the BTB entries. We use vector instead of array
     to leverage the select function provided by bluespec*/
     Vector#(`btbdepth, Reg#(BTBEntry)) v_reg_btb_entry <-
-                                                  replicateM(mkReg(BTBEntry{target: ?, ci : Branch
+                                                  replicateM(mkRegA(BTBEntry{target: ?, ci : Branch
                                            `ifdef compressed ,instr16: False, hi:False `endif }));
 
     /*doc : vec : This vector holds the BTB tags and the respecitve valid bits. This has been split
     from the BTB entries for better hw of CAM look-ups and index retrieval */
-    Vector#(`btbdepth, Reg#(BTBTag)) v_reg_btb_tag <- replicateM(mkReg(unpack(0)));
+    Vector#(`btbdepth, Reg#(BTBTag)) v_reg_btb_tag <- replicateM(mkRegA(unpack(0)));
 
     /*doc : reg : This array holds the branch history table. The bht table banked into `bhtcols
     banks. In case of compressed `bhtcols is 2 else 1. By banking it becomes easy to access the bht
@@ -134,17 +135,17 @@ package gshare_fa;
     /*Reg#(Bit#(`statesize)) rg_bht_arr[`bhtcols][`bhtdepth/`bhtcols];
     for(Integer i = 0; i < `bhtcols; i =  i + 1)
       for(Integer j = 0; j < `bhtdepth/`bhtcols ; j =  j + 1)
-        rg_bht_arr[i][j] <- mkReg(1);*/
+        rg_bht_arr[i][j] <- mkRegA(1);*/
     
     RegFile#(Bit#(TLog#(TDiv#(`bhtdepth,`bhtcols))), Bit#(`statesize)) rg_bht_arr[`bhtcols];
     for (Integer i = 0; i<`bhtcols; i = i + 1) begin
       rg_bht_arr[i] <- mkRegFileWCF(0,fromInteger(valueOf(TDiv#(`bhtdepth,`bhtcols))-1));
     end
     /*doc:reg: */
-    Reg#(Bit#(TLog#(TDiv#(`bhtdepth, `bhtcols)))) rg_bht_index <- mkReg(0);
+    Reg#(Bit#(TLog#(TDiv#(`bhtdepth, `bhtcols)))) rg_bht_index <- mkRegA(0);
     /*doc : reg : This register points to the next entry in the Fully associative BTB that should
     be allocated for a new entry */
-    Reg#(Bit#(TLog#(`btbdepth))) rg_allocate <- mkReg(0);
+    Reg#(Bit#(TLog#(`btbdepth))) rg_allocate <- mkRegA(0);
 
     /*doc : reg : This register holds the global history buffer. There are two methods which can
     update this register: mav_prediction_response and ma_mispredict. The former is called every
@@ -159,14 +160,14 @@ package gshare_fa;
     Alternate to that is to implement this register as a CReg where the ma_mispredict value shadows
     the value updated by the mav_prediction_response method. This remove the above critical path.
     */
-    Reg#(Bit#(`histlen)) rg_ghr[2] <- mkCReg(2, 0);
+    Reg#(Bit#(`histlen)) rg_ghr[2] <- mkCRegA(2, 0);
 
     /*doc : wire : This wire indicates if the predictor is enabled or disabled by the csr config*/
     Wire#(Bool) wr_bpu_enable <- mkWire();
 
   `ifdef ifence
     /*doc : reg : When true this register flushes all the entries and cleans up the btb*/
-    ConfigReg#(Bool) rg_initialize <- mkConfigReg(False);
+    ConfigReg#(Bool) rg_initialize <- mkConfigRegA(False);
 
     /*doc : rule : This rule flushes the btb and puts it back to the initial reset state.
     This rule would be called each time a fence.i is being performed. This rule will also reset the
@@ -251,7 +252,7 @@ package gshare_fa;
     `ifdef compressed
       Bool instr16 = False;
     `endif
-
+      Bit#(TLog#(`btbdepth)) btb_index = 0;
       if(!r.fence && wr_bpu_enable) begin
         // a one - hot vector to store the hits of the btb
         Bit#(`btbdepth) match_;
@@ -262,6 +263,11 @@ package gshare_fa;
 
         hit = unpack(|match_);
         let hit_entry = select(readVReg(v_reg_btb_entry), unpack(match_));
+
+        
+        for(Integer i = 0; i < `btbdepth; i = i + 1)
+          if(match_[i] == 1)
+            btb_index = fromInteger(i);
 
         if(|match_ == 1) begin
           `logLevel( bpu, 1, $format("[%2d]BPU : BTB Hit: ",hartid,fshow(hit_entry)))
@@ -320,7 +326,7 @@ package gshare_fa;
         `endif
       end
 
-      let btbresponse = BTBResponse{prediction: prediction_, btbhit: hit
+      let btbresponse = BTBResponse{btb_index: btb_index, prediction: prediction_, btbhit: hit
                         `ifdef compressed , hi: hi `endif
                         `ifdef gshare , history : lv_ghr`endif };
 
@@ -396,6 +402,11 @@ package gshare_fa;
 
     method Action ma_bpu_enable (Bool e);
       wr_bpu_enable <= e;
+    endmethod
+
+    method Action ma_invalidate_btb (Bit#(TLog#(`btbdepth)) index);
+      `logLevel( bpu, 0, $format("[%2d]BPU: Invalidating BTB index:%d",hartid,index))
+      v_reg_btb_tag[index].valid <= False;
     endmethod
 
   endmodule

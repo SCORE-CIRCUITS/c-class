@@ -208,7 +208,7 @@ module mkfpu_bsvfloat(Ifc_fpu);
     Wrapper3#(Bit#(64),Bit#(64),Bit#(64),Tuple3#(Bit#(11),Bit#(11),Bit#(11)))                                                          getExp64        <- mkUniqueWrapper3(getExp);
   `endif
     Wrapper3#(Bit#(ELEN),Bit#(ELEN),Bit#(ELEN),Tuple3#(Bit#(32),Bit#(32),Bit#(32)))                                                          setCanonicalNaN <- mkUniqueWrapper3(setCanNaN);
-	Reg#(Bool) rg_multicycle_op <-mkReg(False);
+	Reg#(Bool) rg_multicycle_op <-mkRegA(False);
 
 
  `ifdef dpfpu

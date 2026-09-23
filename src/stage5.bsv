@@ -111,10 +111,10 @@ module mkstage5#(parameter Bit#(`xlen) hartid) (Ifc_stage5);
   Ifc_csrbox csr <- mk_csrbox(hartid);
 
   /*doc:reg: This register holds the local epoch value of this stage*/
-  Reg#(Bit#(1)) rg_epoch <- mkReg(0);
+  Reg#(Bit#(1)) rg_epoch <- mkRegA(0);
 
   /*doc:reg: This register when set is used to indicate that we need wait for the csrbox to respond*/
-  Reg#(Bool) rg_csr_wait <- mkReg(False);
+  Reg#(Bool) rg_csr_wait <- mkRegA(False);
 
   /*doc:wire wire that carries the commit data that needs to be written to the integer register
    * file. IN cases of traps and instructions that need to be dropped, writing to this wire can be
@@ -132,7 +132,7 @@ module mkstage5#(parameter Bit#(`xlen) hartid) (Ifc_stage5);
   Wire#(Bool) wr_increment_minstret <- mkDWire(False);
 
   /*doc:reg: This register when set indicates that an IO memory operation is in progress*/
-  Reg#(Bool) rg_ioop_init <- mkReg(False);
+  Reg#(Bool) rg_ioop_init <- mkRegA(False);
 
   /*doc:wire: This wire holds the response of an IO memory operation */
   Wire#(Maybe#(DMem_core_response#(TMul#(`dwords,8),`desize))) wr_ioop_response <- mkDWire(tagged Invalid);
@@ -153,7 +153,7 @@ module mkstage5#(parameter Bit#(`xlen) hartid) (Ifc_stage5);
 `ifdef rtldump
   /*doc:reg: When an instruction commits, this register holds the commit log packet in the next
    * cycle which can be consumed by the test-bench to write into a file*/
-  Reg#(Maybe#(CommitLogPacket)) rg_commitlog <- mkDReg(tagged Invalid);
+  Reg#(Maybe#(CommitLogPacket)) rg_commitlog <- mkDRegA(tagged Invalid);
 `endif
 `ifdef perfmonitors
   /*doc:wire: wire to increment when exceptions detected*/
@@ -177,16 +177,16 @@ module mkstage5#(parameter Bit#(`xlen) hartid) (Ifc_stage5);
   `ifdef etrace_support
     IFC_ingress ingress_port <- mkingress();
     
-    Reg#(Bit#(1)) rg_trap_ingress <- mkReg(0);
-    Reg#(Bit#(4)) rg_trapout_ingress_cause <- mkReg(0);
-    Reg#(Bit#(64)) rg_trapout_ingress_mtval <- mkReg(0);
-    Reg#(Bit#(1)) rg_trapout_ingress_cause_msb <- mkReg(0);
-    Reg#(Bit#(1)) rg_trapout_ingress_is_microtrap <- mkReg(0);
-    Reg#(Bit#(2)) rg_priv_in <- mkReg(0);
-    Reg#(CUid)      rg_fuid <- mkReg(unpack(0));  
-    Reg#(Bool)      rg_epochs_match <- mkReg(False);  
-    Reg#(Bit#(14)) rg_ingress_opcode <- mkReg(0);
-    Reg#(Bit#(3)) rg_funct3 <- mkReg(1);
+    Reg#(Bit#(1)) rg_trap_ingress <- mkRegA(0);
+    Reg#(Bit#(4)) rg_trapout_ingress_cause <- mkRegA(0);
+    Reg#(Bit#(64)) rg_trapout_ingress_mtval <- mkRegA(0);
+    Reg#(Bit#(1)) rg_trapout_ingress_cause_msb <- mkRegA(0);
+    Reg#(Bit#(1)) rg_trapout_ingress_is_microtrap <- mkRegA(0);
+    Reg#(Bit#(2)) rg_priv_in <- mkRegA(0);
+    Reg#(CUid)      rg_fuid <- mkRegA(unpack(0));  
+    Reg#(Bool)      rg_epochs_match <- mkRegA(False);  
+    Reg#(Bit#(14)) rg_ingress_opcode <- mkRegA(0);
+    Reg#(Bit#(3)) rg_funct3 <- mkRegA(1);
     Wire#(Bit#(3)) wr_itype <- mkWire(); 
     Wire#(Bit#(4)) wr_cause <- mkWire(); 
     Wire#(Bit#(64)) wr_tval <- mkWire(); 

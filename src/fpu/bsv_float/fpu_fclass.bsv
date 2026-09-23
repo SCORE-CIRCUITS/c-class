@@ -179,8 +179,8 @@ endmodule
 // (*synthesize*)
 // 	module mkTb_fpu_fclass();
 // 	Ifc_fpu_fclass#(32,23,8) inst_fpu_fclass <- mkfpu_fclass();
-// 	Reg#(Bit#(32)) rg_clock <- mkReg(0);
-// 	Reg#(Bit#(32)) rg_operand1<-mkReg('h7f8ff000); //positive normal set 6
+// 	Reg#(Bit#(32)) rg_clock <- mkRegA(0);
+// 	Reg#(Bit#(32)) rg_operand1<-mkRegA('h7f8ff000); //positive normal set 6
 
 // 	rule get_input(rg_clock == 0);
 // 		inst_fpu_fclass._start(rg_operand1);

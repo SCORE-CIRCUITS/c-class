@@ -110,7 +110,7 @@ module mkfpu_divider(Ifc_fpu_divider#(fpinp,fpman,fpexp))
 	Reg#(Stage1_type#(fpman,fpexp)) rg_stage1    <- mkRegU();       // instantiation of Stage 1 FIFO
     Reg#((Stage2_type#(fpexp2)))    rg_stage2    <- mkRegU();
     Reg#((Stage3_type#(fpexp2,fpman))) rg_stage3 <- mkRegU(); 
-    Reg#(Div_states) rg_state_handler            <- mkReg(Begin);
+    Reg#(Div_states) rg_state_handler            <- mkRegA(Begin);
     Wire#(Bool) wr_flush <- mkDWire(False);
     let fPINP 	= valueOf(fpinp);
     let fPMAN 	= valueOf(fpman);
@@ -555,15 +555,15 @@ module mkTb_fpu_divider(Empty);
     endfunction
 
 
-//    Reg#(Bit#(64)) rg_operand1<-mkReg(64'h006069e454c8dc70); 
-//	Reg#(Bit#(64)) rg_operand2<-mkReg(64'h41e4864ef5800000);
-    Reg#(Bit#(64)) rg_operand1<-mkReg(64'h00000000fffff89d); 
-	Reg#(Bit#(64)) rg_operand2<-mkReg(64'hbff0000000000000);
+//    Reg#(Bit#(64)) rg_operand1<-mkRegA(64'h006069e454c8dc70); 
+//	Reg#(Bit#(64)) rg_operand2<-mkRegA(64'h41e4864ef5800000);
+    Reg#(Bit#(64)) rg_operand1<-mkRegA(64'h00000000fffff89d); 
+	Reg#(Bit#(64)) rg_operand2<-mkRegA(64'hbff0000000000000);
 
-	Reg#(Bit#(32)) rg_clock<-mkReg(0); 
+	Reg#(Bit#(32)) rg_clock<-mkRegA(0); 
 	Ifc_fpu_divider#(64,52,11) divider<-mkfpu_divider();
 
-	Reg#(Bit#(32)) rg_arbit <-mkReg(0);
+	Reg#(Bit#(32)) rg_arbit <-mkRegA(0);
 
 	rule rl_clk_count;
 		rg_clock<=rg_clock+1;
@@ -623,17 +623,17 @@ endmodule
 //module mkTb_fpu_divider_2(Empty);
 //	
 //	RegFile #(Bit #(10), Bit #(68))  input_data <- mkRegFileFullLoad("./testcases/Div_denormal_testcases.hex");
-//	Reg #(Bit #(10)) index <- mkReg(0);
+//	Reg #(Bit #(10)) index <- mkRegA(0);
 //	
-//	Reg #(Bit #(32)) state_clock <- mkReg(1);
-//    Reg #(Bit #(32)) rg_state <- mkReg(0);
+//	Reg #(Bit #(32)) state_clock <- mkRegA(1);
+//    Reg #(Bit #(32)) rg_state <- mkRegA(0);
 // 	/*****************Module Instantiation******************************/
 //	Ifc_fpu_divider#(32,23,8) divider <- mkfpu_divider();
 //
 //
 //	/******************File Creation************************************/
-//	Reg#(int) cnt <- mkReg(0);                  //File Creation counter
-//	let fh <- mkReg(InvalidFile) ;				//File Handler
+//	Reg#(int) cnt <- mkRegA(0);                  //File Creation counter
+//	let fh <- mkRegA(InvalidFile) ;				//File Handler
 //	rule open (cnt == 0 ) ;
 //		File tb_mul_output <- $fopen("tb_div_output.hex", "w+"); 
 //		fh <= tb_mul_output;

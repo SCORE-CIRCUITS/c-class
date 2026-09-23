@@ -129,11 +129,11 @@ module mkfpu_int_to_sp(Ifc_fpu_int_to_sp);
 endmodule
 
 module mkTb(Empty);
-   Reg#(Bit#(64)) rg_operand1<-mkReg(64'h039e781bab642be4); 
-   //Reg#(Bit#(64)) rg_operand1<-mkReg(~(64'hfffffffffffff812)+1); 
-   Reg#(Bit#(32)) rg_clock<-mkReg(0); 
+   Reg#(Bit#(64)) rg_operand1<-mkRegA(64'h039e781bab642be4); 
+   //Reg#(Bit#(64)) rg_operand1<-mkRegA(~(64'hfffffffffffff812)+1); 
+   Reg#(Bit#(32)) rg_clock<-mkRegA(0); 
    Ifc_fpu_int_to_sp itof <- mkfpu_int_to_sp();
-   Reg#(Bit#(32)) rg_arbit <-mkReg(0);
+   Reg#(Bit#(32)) rg_arbit <-mkRegA(0);
 
    rule rl_clk_count;
       rg_clock<=rg_clock+1;
