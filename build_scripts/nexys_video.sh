@@ -45,9 +45,8 @@ pip uninstall soc_config -y || true
 echo "=== Installing dependencies ==="
 pip install -r requirements.txt
 
-echo "=== Cleaning and updating dependencies using repomanager ==="
-repomanager --yaml "$ROOT_DIR/test_soc/nexys_video/deps.yaml" --clean
-repomanager --yaml "$ROOT_DIR/test_soc/nexys_video/deps.yaml" -cup
+echo "=== Cleaning and updating dependencies using soc_config ==="
+soc_config --deps "$ROOT_DIR/test_soc/nexys_video/deps.yaml"
 
 echo "=== Modifying core configuration using yq ==="
 yq -i '

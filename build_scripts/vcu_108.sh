@@ -52,8 +52,7 @@ pip install -r requirements.txt
 # Repo management
 # ------------------------------
 echo "=== Cleaning and updating dependencies ==="
-repomanager --yaml "$ROOT_DIR/test_soc/vcu108/deps.yaml" --clean
-repomanager --yaml "$ROOT_DIR/test_soc/vcu108/deps.yaml" -cup
+soc_config --deps "$ROOT_DIR/test_soc/vcu108/deps.yaml"
 
 # ------------------------------
 # YQ configuration update

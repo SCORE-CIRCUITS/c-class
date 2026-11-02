@@ -91,9 +91,9 @@ package TbSoc;
   `endif
 
     UserInterface#(`paddr,`buswidth,16) uart <- mkuart_user(5, 0, 0);
-    Reg#(Bool) rg_read_rx<- mkDReg(False);
+    Reg#(Bool) rg_read_rx<- mkDRegA(False);
 
-    Reg#(Bit#(5)) rg_cnt <-mkReg(0);
+    Reg#(Bit#(5)) rg_cnt <-mkRegA(0);
 
     Vector#(100, String) string_field;
     for (Integer i = 0; i<100; i = i + 1) begin
@@ -101,7 +101,7 @@ package TbSoc;
     end
 
     /*doc:reg: */
-    Reg#(Bit#(32)) rg_inst_count <- mkReg(0);
+    Reg#(Bit#(32)) rg_inst_count <- mkRegA(0);
 
     rule display_eol;
 	    let timeval <- $time;
@@ -109,8 +109,8 @@ package TbSoc;
     endrule
 
   `ifdef rtldump
-  Reg#(Bit#(`xlen)) rg_prev_mstatus <- mkReg(0);
-  Reg#(Bool) rg_prev_mstatus_valid <- mkReg(False);
+  Reg#(Bit#(`xlen)) rg_prev_mstatus <- mkRegA(0);
+  Reg#(Bool) rg_prev_mstatus_valid <- mkRegA(False);
 
   Bit#(XLEN) lv_misa_init = 0;
   `ifdef RV64
@@ -143,8 +143,8 @@ package TbSoc;
   `ifdef user
     lv_misa_init[20] = 1;
   `endif
-  Reg#(Bit#(XLEN)) rg_prev_misa <- mkReg(lv_misa_init);
- 	  let dump <- mkReg(InvalidFile) ;
+  Reg#(Bit#(XLEN)) rg_prev_misa <- mkRegA(lv_misa_init);
+ 	  let dump <- mkRegA(InvalidFile) ;
     rule open_file_rtldump(rg_cnt<1);
       let generate_dump <- $test$plusargs("rtldump");
       if(generate_dump) begin
@@ -423,11 +423,11 @@ package TbSoc;
     Reg#(Bit#(1)) rg_end_sim <- mkRegA(0);
     Reg#(int) rg_client_fd <- mkRegA(32'hffffffff);
     Reg#(int) rg_socket_fd <- mkRegA(32'hffffffff);
-    Reg#(Bit#(5)) delayed_actor <- mkReg(0);
-    Reg#(Bit#(5)) delayed_actor2 <- mkReg(0);
-    Reg#(Bit#(5)) delayed_actor3 <- mkReg(0);
-    Reg#(Bit#(5)) delayed_actor4 <- mkReg(0);
-    Reg#(Bit#(5)) delayed_actor5 <- mkReg(0);
+    Reg#(Bit#(5)) delayed_actor <- mkRegA(0);
+    Reg#(Bit#(5)) delayed_actor2 <- mkRegA(0);
+    Reg#(Bit#(5)) delayed_actor3 <- mkRegA(0);
+    Reg#(Bit#(5)) delayed_actor4 <- mkRegA(0);
+    Reg#(Bit#(5)) delayed_actor5 <- mkRegA(0);
     rule rl_initial_init(rg_initial_init==0);
       let x <- init_rbb_jtag(0);
       if(x != 32'hffffffff)begin

@@ -4,6 +4,15 @@ CHANGELOG
 
 This project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
+[6.1.0] - 2026-11-02
+--------------------
+- Fixed fs-bit setting to dirty if the load falls in I/O or uncached address range
+- fcvt fix
+- RegA updates to test soc files
+- Board setup update
+- caches_mmu upstream for fixing machine only config
+- upstream soc_config  and updated docs for clean option
+
 [6.0.0] - 2026-09-04
 --------------------
 - RegA update

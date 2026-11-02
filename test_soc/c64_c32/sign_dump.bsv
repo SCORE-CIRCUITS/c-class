@@ -28,23 +28,23 @@ package sign_dump;
     
     let word_count = 128/valueOf(`buswidth);
 
-    Reg#(Bool) rg_start<- mkReg(False);
-    Reg#(Bit#(TLog#(TDiv#(128,`buswidth)))) rg_word_count <- mkReg(fromInteger(word_count-1));
-    Reg#(Bit#(`paddr)) rg_total_count <- mkReg(0);
+    Reg#(Bool) rg_start<- mkRegA(False);
+    Reg#(Bit#(TLog#(TDiv#(128,`buswidth)))) rg_word_count <- mkRegA(fromInteger(word_count-1));
+    Reg#(Bit#(`paddr)) rg_total_count <- mkRegA(0);
 		AXI4_Master_Xactor_IFC #(`paddr, `axi4_id_width,`buswidth, `USERSPACE) m_xactor <- mkAXI4_Master_Xactor;
 		AXI4_Slave_Xactor_IFC #(`paddr, `axi4_id_width,`buswidth, `USERSPACE) s_xactor <- mkAXI4_Slave_Xactor;
     
     FIFOF#(Bit#(TLog#(TDiv#(`buswidth,8)))) ff_lower_order_bits <- mkSizedFIFOF(8);
 
-    Reg#(Bit#(`paddr)) rg_start_address<- mkReg(0);    // 0x2000
-    Reg#(Bit#(`paddr)) rg_end_address<- mkReg(0);      // 0x2008
+    Reg#(Bit#(`paddr)) rg_start_address<- mkRegA(0);    // 0x2000
+    Reg#(Bit#(`paddr)) rg_end_address<- mkRegA(0);      // 0x2008
 
 
     Reg#(Bit#(32)) dataarray[word_count];
     for(Integer i=0;i<word_count;i=i+1)
-      dataarray[i]<-mkReg(0);
-    Reg#(Bit#(5)) rg_cnt <-mkReg(0);
- 	  let dump <- mkReg(InvalidFile) ;
+      dataarray[i]<-mkRegA(0);
+    Reg#(Bit#(5)) rg_cnt <-mkRegA(0);
+ 	  let dump <- mkRegA(InvalidFile) ;
     rule open_file(rg_cnt<5);
       String dumpFile = "signature" ;
     	File lfh <- $fopen( dumpFile, "w" ) ;

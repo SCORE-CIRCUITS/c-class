@@ -103,7 +103,8 @@ first:
 
   $ cd c-class/
   $ pyenv activate venv # ignore this is you are not using pyenv
-  $ pip install -U -r c-class/requirements.txt
+  $ pip uninstall soc_config -y
+  $ pip install -U -r requirements.txt
 
 The C-class core generator takes a specific :ref:`YAML<configure-core-label>` format as input. It makes specific checks to
 validate if the user has entered valid data and none of the parameters conflict with each other.
@@ -111,8 +112,10 @@ For e.g., mentioning the 'D' extension without the 'F' will get captured by the 
 invalid spec. More information on the exact parameters and constraints on each field are discussed
 here.
 
-Once the input YAML has been validated, the generator then clones all the dependent repositories
-which enable building a test-soc, simulating it and performing verification of the core. 
+The dependent repositories which enable building a test-soc, simulating it and performing
+verification of the core are listed in a deps YAML (e.g. ``test_soc/c64_c32/c64_deps.yaml``) and
+are cloned by a separate ``soc_config --deps`` step before the core is configured.
+Adding ``--clean`` deletes these repos instead (refused if any has uncommitted changes, unpushed commits or stashes; ``--force`` deletes anyway).
 This is an alternative to maintaining the repositories as submodules, which
 typically pollutes the commit history with bump commits.
 
@@ -127,11 +130,12 @@ To build the core with a sample test-soc using the default config do the followi
 
 .. code-block:: bash
 
-  $ soc_config  -ispec sample_config/c64/rv64i_isa.yaml   -customspec sample_config/c64/rv64i_custom.yaml   -cspec sample_config/c64/core64.yaml   -gspec sample_config/c64/csr_grouping64.yaml   -dspec sample_config/c64/rv64i_debug.yaml   --deps $PWD/test_soc/c64_c32/c64_deps.yaml   --verbose info
+  $ soc_config --deps $PWD/test_soc/c64_c32/c64_deps.yaml
+  $ soc_config  -ispec sample_config/c64/rv64i_isa.yaml   -customspec sample_config/c64/rv64i_custom.yaml   -cspec sample_config/c64/core64.yaml   -gspec sample_config/c64/csr_grouping64.yaml   -dspec sample_config/c64/rv64i_debug.yaml   --verbose info
 
-The above step generates a ``makefile.inc`` file in the same folder and also
-clones other dependent repositories to build a test-soc and carry out
-verification. This should generate a log something similar to:
+The first step clones the dependent repositories to build a test-soc and carry out
+verification, and exits. The second step validates the input YAMLs and generates a
+``makefile.inc`` file in the same folder. This should generate a log something similar to:
 
 .. code-block:: text
 
@@ -139,10 +143,6 @@ verification. This should generate a log something similar to:
   [INFO]    :            Available under BSD License
   
   
-  [INFO]    : [update] Cloning caches_mmu ...
-                ...
-                ...
-                ...
   [INFO]    : Loading input file: ..../sample_config/default.yaml
   [INFO]    : Load Schema configure/schema.yaml
   [INFO]    : Initiating Validation
@@ -168,7 +168,7 @@ This should generate the following folders:
 
    .. code-block:: bash
 
-      make -j<jobs> generate_verilog; make generate_boot_files link_verilator
+      make -j<jobs> generate_verilog; make link_verilator generate_boot_files
 
 Run Smoke Tests
 ---------------
@@ -177,13 +177,13 @@ You can run the individual riscv-tests on the generated verilog of the test-soc 
 
 .. code-block:: bash
 
-  $ make test opts='--test=add --suite=rv64ui ' CONFIG_ISA=RV64IMAFDC
+  $ make test opts='--test=add --suite=rv64ui ' CONFIG_ISA=RV64IMAFDCZicsr_Zifencei
 
 You can run the entire riscv-tests suite in a regression using the following: :
 
 .. code-block:: bash
 
-  $ make regress opts='--filter=rv64 --sub' CONFIG_ISA=RV64IMAFDC
+  $ make regress opts='--filter=rv64 --test_opts="--timeout=120s" --sub' CONFIG_ISA=RV64IMAFDCZicsr_Zifencei
   $ make regress opts='--filter=rv64 --final'
 
 The last command, after some delay, should present the following output:

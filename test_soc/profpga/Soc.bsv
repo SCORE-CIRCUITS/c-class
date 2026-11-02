@@ -269,7 +269,7 @@ package Soc;
                          ccore[i].etrace_ingress_port.ilastsize  )  ;    */  
        endrule
        
-       Reg#(Bool) started <- mkReg(False);
+       Reg#(Bool) started <- mkRegA(False);
        rule start_stream (!started);
           ethStream.start(`MemoryBase, `MemoryBase + 'h500, 128);
            started <= True;

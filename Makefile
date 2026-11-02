@@ -24,6 +24,9 @@ else ifeq ($(BOARD), arty_a7_fpu)
 else ifeq ($(BOARD), profpga)
 	FPGA:=xcvu440-flga2892-1-c
 	MCS:=false
+else ifeq ($(BOARD), s8_100)                                                                        
+  FPGA:=xcvp1902-vsva6865-2mp-e-s
+	MCS:=false
 else ifeq ($(BOARD), nexys_video)
 	FPGA:=xc7a200tsbg484-1
 	MCS:=true
@@ -308,15 +311,17 @@ merge_cov:
 yml:
 	@SHAKTI_HOME=$$PWD python3 $(SHAKTI_HOME)/verification/verif-scripts/gen_yml.py $(opts)
 
+safe_dir = $(if $(and $(filter 1,$(words $(1))),$(filter $(CURDIR)/%,$(abspath $(1)))),$(1),$(error Refusing to delete '$(1)': not a single path inside $(CURDIR). Re-run soc_config to regenerate makefile.inc))
+
 .PHONY: clean
 clean:
-	rm -rf $(BSVBUILDDIR)/* *.log $(BSVOUTDIR)/* obj_dir $(VERILOGDIR)/*
-	rm -f *.jou rm *.log *.mem log sim_main.h cds.lib hdl.var
+	rm -rf $(call safe_dir,$(BSVBUILDDIR))/* $(call safe_dir,$(BSVOUTDIR))/* $(call safe_dir,$(VERILOGDIR))/* obj_dir
+	rm -f *.jou *.log *.mem log sim_main.h cds.lib hdl.var
 
 .PHONY: clean_all
 clean_all:
-	rm -rf build *.log $(BSVOUTDIR)/ obj_dir $(VERILOGDIR)/ makefile csrbox_bsv
-	rm -f *.jou rm *.log *.mem log sim_main.h cds.lib hdl.var makefile.inc
+	rm -rf build $(call safe_dir,$(BSVOUTDIR)) $(call safe_dir,$(VERILOGDIR)) obj_dir csrbox_bsv
+	rm -f *.jou *.log *.mem log sim_main.h cds.lib hdl.var makefile.inc
 
 clean_verif:
 	rm -rf verification/workdir/*
