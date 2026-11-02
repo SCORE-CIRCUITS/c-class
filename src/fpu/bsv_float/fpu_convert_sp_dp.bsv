@@ -60,6 +60,12 @@ function ActionValue#(Bit#(37)) doubleFloat(Bit#(1) sign, Bit#(11) exponent, Bit
     =actionvalue
     Bit#(5) exception = 0;
     bit denormal = 0;
+    // Check if magnitude of the number should be increased
+    Bool mag_round_up = (rounding_mode == 3'b000 && mantissa[28] == 1 && (mantissa[27:0] != 0 || mantissa[29] == 1)) ||  // RNE, check if > 1/2 or exact half and odd mantissa
+                        (rounding_mode == 3'b100 && mantissa[28] == 1) ||  // RMM, check if > 1/2
+                        (rounding_mode == 3'b010 && sign == 1 && mantissa[28:0] != 0) ||  // RDN, check if > 1/2 and negative number
+                        (rounding_mode == 3'b011 && sign == 0 && mantissa[28:0] != 0);  // RUP, check if > 1/2 and positive number
+
     //`ifdef verbose $display("sign : %b exponent : %b mantissa : %b flags : %b",sign,exponent,mantissa, flags); `endif
     if (flags[3]==1) begin
         return {5'b0,sign,31'b0};
@@ -111,16 +117,18 @@ function ActionValue#(Bit#(37)) doubleFloat(Bit#(1) sign, Bit#(11) exponent, Bit
             //`ifdef verbose $display("Denormal lv_sticky : %b", lv_sticky); `endif
             let shiftDist = 'h380 /*'d896*/ - exponent;
             man = {1'b1,mantissa[51:27],23'd0} >> shiftDist; 
-            if(man/*[23:0]*/ != 0) begin
-                lv_sticky = | mantissa[26:0];
-            //`ifdef verbose $display("lv_guard : %b shiftDist : %d",lv_guard, shiftDist); `endif
-            expo = '0;
-            if (exponent == 'h380 /*'d896*/ && man[48:24] == 25'h1ffffff  && ((rounding_mode == 'b010 && sign == 1)||(rounding_mode == 'b011 && sign == 0)|| (rounding_mode != 'b001))) begin
-             denormal = 0;
-             exception[0]=1; end 
-             else  begin 
-              denormal = 1; end  
-            
+            if(man != 0) begin
+                // include the bits shifted out into man[23:0] and mantissa[26:0].
+                lv_sticky = (| man[23:0]) | (| mantissa[26:0]);
+                //`ifdef verbose $display("lv_guard : %b shiftDist : %d",lv_guard, shiftDist); `endif
+                expo = '0;
+                // Largest subnormal rounding up to the min normal sets NX only.
+                if (exponent == 'h380 /*'d896*/ && mantissa[51:29] == 23'h7fffff && mag_round_up) begin
+                    denormal = 0;
+                    exception[0]=1;
+                end
+                else
+                    denormal = 1;
             end
         end
         else begin      //Normal number
@@ -138,10 +146,12 @@ function ActionValue#(Bit#(37)) doubleFloat(Bit#(1) sign, Bit#(11) exponent, Bit
             exception[1] = 1;
             exception[0] = 1;
         end
-            if(exponent == 'h47E /*'d1150*/ && mantissa[51:28] == 24'hffffff && (mantissa[27] ==1 || lv_sticky == 1)  && ((rounding_mode == 'b010 && sign == 1)||(rounding_mode == 'b011 && sign == 0)|| (rounding_mode != 'b001)))begin
-              exception[2] = 1; end
+        // Rounding up to 2^128 sets OF.
+        if(exponent == 'h47E /*'d1150*/ && mantissa[51:29] == 23'h7fffff && mag_round_up) begin
+            exception[2] = 1; 
+        end
               
-            exception[0] = exception[0] | lv_inexact; 
+        exception[0] = exception[0] | lv_inexact; 
             
       if(flags[2]==0 && flags[0] == 0 && flags[1]==0 && flags[3] == 0) begin
         if(rounding_mode == 'b000) 
@@ -160,7 +170,7 @@ function ActionValue#(Bit#(37)) doubleFloat(Bit#(1) sign, Bit#(11) exponent, Bit
         if(fman[23] == 1)
             expo = expo + 1;
         if(underflow==0)
-        res = {sign,expo,fman[22:0]};
+            res = {sign,expo,fman[22:0]};
     end
         return {exception,res};
     end

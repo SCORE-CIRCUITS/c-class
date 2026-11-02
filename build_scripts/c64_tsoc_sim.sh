@@ -41,8 +41,7 @@ pip install -r requirements.txt
 # Repo management
 # ------------------------------
 echo "=== Cleaning and updating dependencies ==="
-repomanager --yaml "$ROOT_DIR/test_soc/c64_c32/c64_deps.yaml" --clean
-repomanager --yaml "$ROOT_DIR/test_soc/c64_c32/c64_deps.yaml" -cup
+soc_config --deps "$ROOT_DIR/test_soc/c64_c32/c64_deps.yaml"
 
 # ------------------------------
 # YQ configuration update

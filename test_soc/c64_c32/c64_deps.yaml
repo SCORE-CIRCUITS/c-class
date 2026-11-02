@@ -1,6 +1,6 @@
 caches_mmu:
   url: https://gitlab.com/shaktiproject/uncore/caches_mmu
-  checkout: 14.5.1
+  checkout: 14.6.2
 common_bsv:
   url: https://gitlab.com/shaktiproject/common_bsv
   checkout: 3.2.0

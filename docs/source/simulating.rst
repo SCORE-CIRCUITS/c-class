@@ -8,12 +8,13 @@ Generate Verilated Executable
 .. code-block:: bash
 
   $ cd c-class
+  $ pip uninstall soc_config -y
   $ pip install -r requirements.txt
-  $ soc_config  -ispec sample_config/c64/rv64i_isa.yaml   -customspec sample_config/c64/rv64i_custom.yaml   -cspec sample_config/c64/core64.yaml   -gspec sample_config/c64/csr_grouping64.yaml   -dspec sample_config/c64/rv64i_debug.yaml   --deps $PWD/test_soc/c64_c32/c64_deps.yaml   --verbose info
-  $ make generate_verilog; make link_verilator;
+  $ soc_config --deps $PWD/test_soc/c64_c32/c64_deps.yaml
+  $ soc_config  -ispec sample_config/c64/rv64i_isa.yaml   -customspec sample_config/c64/rv64i_custom.yaml   -cspec sample_config/c64/core64.yaml   -gspec sample_config/c64/csr_grouping64.yaml   -dspec sample_config/c64/rv64i_debug.yaml   --verbose info
   # for xxd versions 2023 and above
   $ export XXD_VERSION=2023
-  $ generate_boot_files 
+  $ make -j8 generate_verilog; make link_verilator generate_boot_files
 
 
 The above should result in following files in the ``bin`` folder:
@@ -96,7 +97,7 @@ test-bench
 
 .. code-block:: bash
 
-  $ soc_config -ispec sample_config/c64/rv64i_isa.yaml   -customspec sample_config/c64/rv64i_custom.yaml   -cspec sample_config/c64/core64.yaml   -gspec sample_config/c64/csr_grouping64.yaml   -dspec sample_config/c64/rv64i_debug.yaml   --deps $PWD/test_soc/c64_c32/c64_deps.yaml   --verbose info
+  $ soc_config -ispec sample_config/c64/rv64i_isa.yaml   -customspec sample_config/c64/rv64i_custom.yaml   -cspec sample_config/c64/core64.yaml   -gspec sample_config/c64/csr_grouping64.yaml   -dspec sample_config/c64/rv64i_debug.yaml   --verbose info
   $ make gdb # generate executable with open-ocd vpi enabled in the test-bench
 
 1. Simulate the RTL

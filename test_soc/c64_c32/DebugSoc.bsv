@@ -78,10 +78,10 @@ package DebugSoc ;
 
     Ifc_Soc soc <- mkSoc(reset_by system_reset, hartresets);
     // null crossing registers to transfer input signals from current_domain to tck domain
-    CrossingReg#(Bit#(1)) tdi<-mkNullCrossingReg(tck_clk,0);                                        
-    CrossingReg#(Bit#(1)) tms<-mkNullCrossingReg(tck_clk,0);                                        
+    CrossingReg#(Bit#(1)) tdi<-mkNullCrossingRegA(tck_clk,0);                                        
+    CrossingReg#(Bit#(1)) tms<-mkNullCrossingRegA(tck_clk,0);                                        
     // null crossing registers to transfer signals from tck to curr_clock domain.
-    CrossingReg#(Bit#(1)) tdo<-mkNullCrossingReg(curr_clk,0,clocked_by tck_clk, reset_by trst);     
+    CrossingReg#(Bit#(1)) tdo<-mkNullCrossingRegA(curr_clk,0,clocked_by tck_clk, reset_by trst);     
                                                                                                     
     Ifc_jtagdtm jtag_tap <- mkjtagdtm(clocked_by tck_clk, reset_by trst);                           
 

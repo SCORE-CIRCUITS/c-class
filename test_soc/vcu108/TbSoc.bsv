@@ -127,7 +127,7 @@ package TbSoc;
     end
 
     /*doc:reg: */
-    Reg#(Bit#(32)) rg_inst_count <- mkReg(0);
+    Reg#(Bit#(32)) rg_inst_count <- mkRegA(0);
 
     rule display_eol;
 	    let timeval <- $time;
@@ -135,8 +135,8 @@ package TbSoc;
     endrule
 
   `ifdef rtldump
-  Reg#(Bit#(`xlen)) rg_prev_mstatus <- mkReg(0);
-  Reg#(Bool) rg_prev_mstatus_valid <- mkReg(False);
+  Reg#(Bit#(`xlen)) rg_prev_mstatus <- mkRegA(0);
+  Reg#(Bool) rg_prev_mstatus_valid <- mkRegA(False);
   Bit#(XLEN) lv_misa_init = 0;
   `ifdef RV64
     lv_misa_init[63:62] = 2'b10;
@@ -168,8 +168,8 @@ package TbSoc;
   `ifdef user
     lv_misa_init[20] = 1;
   `endif
-  Reg#(Bit#(XLEN)) rg_prev_misa <- mkReg(lv_misa_init);
- 	  let dump <- mkReg(InvalidFile) ;
+  Reg#(Bit#(XLEN)) rg_prev_misa <- mkRegA(lv_misa_init);
+ 	  let dump <- mkRegA(InvalidFile) ;
     rule open_file_rtldump(rg_cnt<1);
       let generate_dump <- $test$plusargs("rtldump");
       if(generate_dump) begin

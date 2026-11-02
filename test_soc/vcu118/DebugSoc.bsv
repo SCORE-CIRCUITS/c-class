@@ -92,10 +92,10 @@ package DebugSoc ;
     Wire#(Bit#(1)) update   <- mkWire(clocked_by tck_clk, reset_by trst);   
   `endif           
 
-    CrossingReg#(Bit#(1)) tdi<-mkNullCrossingReg(tck_clk,0);
-    CrossingReg#(Bit#(1)) tms<-mkNullCrossingReg(tck_clk,0);                                        
+    CrossingReg#(Bit#(1)) tdi<-mkNullCrossingRegA(tck_clk,0);
+    CrossingReg#(Bit#(1)) tms<-mkNullCrossingRegA(tck_clk,0);                                        
     // null crossing registers to transfer signals from tck to curr_clock domain.
-    CrossingReg#(Bit#(1)) tdo<-mkNullCrossingReg(curr_clk,0,clocked_by tck_clk, reset_by trst);   
+    CrossingReg#(Bit#(1)) tdo<-mkNullCrossingRegA(curr_clk,0,clocked_by tck_clk, reset_by trst);   
     // null crossing registers to transfer signals from tck to curr_clock domain.
     //Wire#(Bit#(1)) tdo      <- mkWire(clocked_by tck_clk, reset_by trst);     
     //ReadOnly#(Bit#(1)) tdo      <- mkNullCrossingWire(curr_clk, clocked_by tck_clk, reset_by trst);     

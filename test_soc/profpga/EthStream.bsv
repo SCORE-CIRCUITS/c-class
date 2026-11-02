@@ -50,25 +50,25 @@ AXI4_Master_Xactor_IFC#(`paddr,`axi4_id_width,`buswidth,`USERSPACE)
 // Registers
 // ------------------------------------------------
 
-Reg#(Bit#(`paddr)) base_addr <- mkReg(0);
-Reg#(Bit#(`paddr)) end_addr  <- mkReg(0);
+Reg#(Bit#(`paddr)) base_addr <- mkRegA(0);
+Reg#(Bit#(`paddr)) end_addr  <- mkRegA(0);
 
-Reg#(Bit#(`paddr)) src_addr <- mkReg(0);
+Reg#(Bit#(`paddr)) src_addr <- mkRegA(0);
 
-Reg#(Bit#(32)) remaining <- mkReg(0);
-Reg#(Bit#(32)) pkt_size  <- mkReg(0);
+Reg#(Bit#(32)) remaining <- mkRegA(0);
+Reg#(Bit#(32)) pkt_size  <- mkRegA(0);
 
-Reg#(Bit#(`paddr)) eth_addr <- mkReg(eth_tx_buf);
+Reg#(Bit#(`paddr)) eth_addr <- mkRegA(eth_tx_buf);
 
-Reg#(Bit#(64)) data_buf <- mkReg(0);
+Reg#(Bit#(64)) data_buf <- mkRegA(0);
 
-Reg#(Bool) send_hi <- mkReg(False);
-Reg#(Bool) running <- mkReg(False);
+Reg#(Bool) send_hi <- mkRegA(False);
+Reg#(Bool) running <- mkRegA(False);
 
-Reg#(Bit#(3)) header_count <- mkReg(0);
+Reg#(Bit#(3)) header_count <- mkRegA(0);
 
-Reg#(Bool) len_written <- mkReg(False);
-Reg#(Bool) tx_started <- mkReg(False);
+Reg#(Bool) len_written <- mkRegA(False);
+Reg#(Bool) tx_started <- mkRegA(False);
 
 
 // DDR payload FIFO

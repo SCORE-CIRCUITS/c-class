@@ -511,6 +511,7 @@ module mkstage5#(parameter Bit#(`xlen) hartid) (Ifc_stage5);
             wr_increment_minstret <= True;
             let commit_data = ioresp.word;
             `ifdef dpfpu if (memop.nanboxing) commit_data[63:32] = '1; `endif
+            `ifdef spfpu csr.ma_set_fflags(0, fuid.rdtype); `endif
             wr_commit <= CommitData{addr: fuid.rd, data: zeroExtend(commit_data), unlock_only:False
                                       `ifdef no_wawstalls , id: fuid.id `endif
                                       `ifdef spfpu ,rdtype: fuid.rdtype `endif };
